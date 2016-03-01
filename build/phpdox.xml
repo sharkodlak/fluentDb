@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpdox xmlns="http://xml.phpdox.net/config">
+    <project name="fluentDb" source="../src" workdir="phpdox">
+        <collector publiconly="false">
+            <include mask="*.php" />
+            <inheritance resolve="true"/>
+        </collector>
+
+        <generator output=".">
+            <enrich base="logs">
+                <source type="build" />
+                <source type="git">
+                    <history enabled="true" limit="15" />
+                </source>
+                <source type="checkstyle" />
+                <source type="pmd" />
+                <source type="phploc" />
+                <source type="phpunit">
+                    <coverage path="../coverage/xml" />
+                </source>
+            </enrich>
+
+            <build engine="html" enabled="true" output="api">
+                <file extension="html" />
+            </build>
+        </generator>
+    </project>
+</phpdox>

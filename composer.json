@@ -1,0 +1,51 @@
+{
+	"name": "sharkodlak/fluentdb",
+	"description": "Fluent DB provides high performance DB layer with easy to use fluent interface.",
+	"keywords": [
+		"high performance",
+		"fluent interface",
+		"database",
+		"abstraction",
+		"layer",
+		"DB",
+		"DBAL",
+		"NotORM",
+		"FluentPDO"
+	],
+	"homepage": "https://github.com/Sharkodlak/php-fluentdb",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Pavel Štětina",
+			"email": "github@shark.kom.cz",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"psr/cache": "*",
+		"tedivm/stash": "*",
+		"php": ">=5.6.13"
+	},
+	"require-dev": {
+		"pdepend/pdepend": "*",
+		"phploc/phploc": "*",
+		"phpmd/phpmd": "*",
+		"phpunit/phpunit": "*",
+		"sebastian/phpcpd": "*",
+		"sharkodlak/coding-style": "*",
+		"squizlabs/php_codesniffer": "*",
+		"theseer/phpdox": "*"
+	},
+	"suggest": {
+		"ext-pgsql": "PostgreSQL PDO module."
+	},
+	"support": {
+		"issues": "https://github.com/sharkodlak/php-fluentdb/issues",
+		"wiki": "https://github.com/sharkodlak/php-fluentdb/wiki"
+	},
+	"autoload": {
+		"psr-4": {
+			"Sharkodlak\\FluentDb\\": "src/"
+		}
+	}
+}
