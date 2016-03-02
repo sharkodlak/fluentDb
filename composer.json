@@ -23,8 +23,8 @@
 	],
 	"require": {
 		"psr/cache": "*",
-		"tedivm/stash": "*",
-		"php": ">=5.6.13"
+		"php": ">=5.6.13",
+		"ext-pdo": "*"
 	},
 	"require-dev": {
 		"pdepend/pdepend": "*",
@@ -34,6 +34,7 @@
 		"sebastian/phpcpd": "*",
 		"sharkodlak/coding-style": "*",
 		"squizlabs/php_codesniffer": "*",
+		"tedivm/stash": "*",
 		"theseer/phpdox": "*"
 	},
 	"suggest": {
@@ -46,6 +47,11 @@
 	"autoload": {
 		"psr-4": {
 			"Sharkodlak\\FluentDb\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Sharkodlak\\FluentDb\\": ["tests/"]
 		}
 	}
 }
