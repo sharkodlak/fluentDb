@@ -157,7 +157,7 @@
 	<target name="phpunit-no-coverage" unless="phpunit.done" depends="prepare,composer" description="Run unit tests with PHPUnit (without generating code coverage reports)">
 		<exec executable="${phpunit}" failonerror="true" taskname="phpunit">
 			<arg value="--configuration"/>
-			<arg path="${testdir}/phpunit.xml"/>
+			<arg path="phpunit.xml"/>
 			<arg value="--no-coverage"/>
 		</exec>
 		<property name="phpunit.done" value="true"/>
@@ -166,7 +166,7 @@
 	<target name="phpunit" unless="phpunit.done" depends="prepare,composer" description="Run unit tests with PHPUnit">
 		<exec executable="${phpunit}" resultproperty="result.phpunit" taskname="phpunit">
 			<arg value="--configuration"/>
-			<arg path="${testdir}/phpunit.xml"/>
+			<arg path="phpunit.xml"/>
 		</exec>
 		<property name="phpunit.done" value="true"/>
 	</target>
