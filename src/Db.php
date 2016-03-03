@@ -12,4 +12,20 @@ class Db {
 		$this->cache = $cache;
 		$this->convention = $convention;
 	}
+
+	public function __get($name) {
+		return $this->table($name);
+	}
+
+	/** Get object representing table.
+	 *
+	 * This method acts as factory for creating new Table with reference to this DB object.
+	 *
+	 * @param string  $name Simplified table name.
+	 *
+	 * @returns Table  Table representation.
+	 */
+	public function table($name) {
+		return new Table($this, $name);
+	}
 }

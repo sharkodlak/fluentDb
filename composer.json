@@ -12,7 +12,7 @@
 		"NotORM",
 		"FluentPDO"
 	],
-	"homepage": "https://github.com/Sharkodlak/php-fluentdb",
+	"homepage": "https://github.com/Sharkodlak/fluentdb",
 	"license": "MIT",
 	"authors": [
 		{
@@ -23,6 +23,7 @@
 	],
 	"require": {
 		"psr/cache": "*",
+		"sharkodlak/exception": "*",
 		"php": ">=5.6.13",
 		"ext-pdo": "*"
 	},
@@ -41,8 +42,8 @@
 		"ext-pgsql": "PostgreSQL PDO module."
 	},
 	"support": {
-		"issues": "https://github.com/sharkodlak/php-fluentdb/issues",
-		"wiki": "https://github.com/sharkodlak/php-fluentdb/wiki"
+		"issues": "https://github.com/sharkodlak/fluentdb/issues",
+		"wiki": "https://github.com/sharkodlak/fluentdb/wiki"
 	},
 	"autoload": {
 		"psr-4": {
@@ -51,7 +52,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Sharkodlak\\FluentDb\\": ["tests/"]
+			"Sharkodlak\\FluentDb\\": "tests/"
 		}
 	}
 }
