@@ -19,6 +19,7 @@ class Columns {
 
 	public function add($columnName, $expression = null) {
 		$this->columns[$columnName] = $expression;
+		return $this;
 	}
 
 	public function set(array $columns) {
@@ -30,5 +31,6 @@ class Columns {
 				$this->columns[(string) $key] = $value;
 			}
 		}
+		return $this;
 	}
 }
