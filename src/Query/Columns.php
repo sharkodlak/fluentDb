@@ -22,6 +22,13 @@ class Columns {
 	}
 
 	public function set(array $columns) {
-		$this->columns = $columns;
+		$this->columns = [];
+		foreach ($columns as $key => $value) {
+			if (is_int($key)) {
+				$this->columns[$value] = null;
+			} else {
+				$this->columns[(string) $key] = $value;
+			}
+		}
 	}
 }
