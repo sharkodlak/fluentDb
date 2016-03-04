@@ -29,14 +29,6 @@ class Db {
 		return new Table($this, $name);
 	}
 
-	public function getConvention() {
-		return $this->convention;
-	}
-
-	public function getPdo() {
-		return $this->pdo;
-	}
-
 	public function getConventionTableName($tableName) {
 		return $this->convention->getTableName($tableName);
 	}

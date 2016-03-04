@@ -3,22 +3,19 @@
 namespace Sharkodlak\FluentDb;
 
 class DbTest extends \PHPUnit_Framework_TestCase {
-	private $db;
-
-	public function setUp() {
+	public function test__Get() {
 		$pdo = $this->getMockBuilder('PDO')
 			->disableOriginalConstructor()
 			->getMock();
-		//$pdo = new \PDO("uri:file:///etc/dbal/.dbconnect");
-		$cache = new \Stash\Pool();
-		$convention = new Structure\DefaultConvention('%s_id');
-		$this->db = new Db($pdo, $cache, $convention);
+		$cache = $this->getMockBuilder(\Psr\Cache\CacheItemPoolInterface::class)
+			->getMock();
+		$convention = $this->getMockBuilder(Structure\DefaultConvention::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$db = new Db($pdo, $cache, $convention);
+		$this->assertInstanceOf(Table::class, $db->film);
 	}
 
-	public function test__Get() {
-		$films = $this->db->film;
-		$this->assertInstanceOf('Sharkodlak\FluentDb\Table', $films);
-	}
 
 	public function testGetQuery() {
 		$this->markTestSkipped('Not implemented yet.');
