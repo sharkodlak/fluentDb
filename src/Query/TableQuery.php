@@ -42,5 +42,5 @@ abstract class TableQuery implements Query {
 		return implode(' ', $this->getParts());
 	}
 
-	abstract protected function getParts();
+	abstract public function getParts();
 }

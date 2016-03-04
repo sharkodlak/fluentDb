@@ -10,7 +10,7 @@ class Select extends TableQuery {
 		'table' => '%s'
 	];
 
-	protected function getParts() {
+	public function getParts() {
 		return $this->parts;
 	}
 }
