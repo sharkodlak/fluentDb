@@ -9,4 +9,8 @@ class Select extends TableQuery {
 		'fromClause' => 'FROM',
 		'table' => '%s'
 	];
+
+	protected function getParts() {
+		return $this->parts;
+	}
 }

@@ -28,4 +28,20 @@ class Db {
 	public function table($name) {
 		return new Table($this, $name);
 	}
+
+	public function getConvention() {
+		return $this->convention;
+	}
+
+	public function getPdo() {
+		return $this->pdo;
+	}
+
+	public function getTableName($tableName) {
+		return $this->convention->getTableName($tableName);
+	}
+
+	public function query($query) {
+		return $this->pdo->query($query);
+	}
 }
