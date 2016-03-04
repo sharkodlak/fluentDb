@@ -37,7 +37,7 @@ class Db {
 		return $this->pdo;
 	}
 
-	public function getTableName($tableName) {
+	public function getConventionTableName($tableName) {
 		return $this->convention->getTableName($tableName);
 	}
 
