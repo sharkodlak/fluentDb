@@ -29,8 +29,15 @@ class Table {
 		return $this->query;
 	}
 
+	public function getPlaceholderTranslations() {
+		return [
+			':table' => $this->getConventionTableName(),
+		];
+	}
+
 	public function query($query) {
-		$query = sprintf($query, $this->getConventionTableName());
-		return $this->db->query($query);
+		$translations = $this->getPlaceholderTranslations();
+		$queryTranslated = strtr($query, $translations);
+		return $this->db->query($queryTranslated);
 	}
 }

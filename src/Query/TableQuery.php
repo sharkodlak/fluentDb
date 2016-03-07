@@ -4,6 +4,7 @@ namespace Sharkodlak\FluentDb\Query;
 
 abstract class TableQuery implements Query {
 	private $table;
+	protected $parts = [];
 	private $result;
 
 	public function __construct(\Sharkodlak\FluentDb\Table $table) {
@@ -39,8 +40,12 @@ abstract class TableQuery implements Query {
 	}
 
 	public function __toString() {
-		return implode(' ', $this->getParts());
+		$query = implode(' ', $this->getParts());
+		$translations = $this->table->getPlaceholderTranslations();
+		return strtr($query, $translations);
 	}
 
-	abstract public function getParts();
+	public function getParts() {
+		return $this->parts;
+	}
 }
