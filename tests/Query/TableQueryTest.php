@@ -22,7 +22,7 @@ class TableQueryTest extends \PHPUnit_Framework_TestCase {
 		$expected = 'SELECT * FROM test_table';
 		$this->assertEquals($expected, (string) $query);
 	}
-/*
+
 	public function testExecution() {
 		$statement = $this->getMockBuilder('PDOStatement')
 			->disableOriginalConstructor()
@@ -34,13 +34,18 @@ class TableQueryTest extends \PHPUnit_Framework_TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		$table->expects($this->once())
-			->method('getConventionTableName')
-			->will($this->returnValue('some_table'));
+			->method('query')
+			->will($this->returnValue($statement));
+		$translations = [':table' => 'test_table'];
+		$table->expects($this->any())
+			->method('getPlaceholderTranslations')
+			->will($this->returnValue($translations));
 		$query = $this->getMockBuilder(TableQuery::class)
 			->setConstructorArgs([$table])
+			->setMethods(['getParts'])
 			->getMockForAbstractClass();
 		$parts = ['SELECT', '*', 'FROM', ':table'];
-		$query->expects($this->any())
+		$query->expects($this->once())
 			->method('getParts')
 			->will($this->returnValue($parts));
 		$this->assertFalse($query->isExecuted());
@@ -60,14 +65,20 @@ class TableQueryTest extends \PHPUnit_Framework_TestCase {
 		$table = $this->getMockBuilder(\Sharkodlak\FluentDb\Table::class)
 			->disableOriginalConstructor()
 			->getMock();
-		$table->expects($this->any())
+		$table->expects($this->once())
 			->method('query')
 			->will($this->returnValue($statement));
+		$translations = [':table' => 'test_table'];
+		$table->expects($this->any())
+			->method('getPlaceholderTranslations')
+			->will($this->returnValue($translations));
 		$parts = ['SELECT', '*', 'FROM', '%s'];
 		$query = $this->getMockBuilder(TableQuery::class)
 			->setConstructorArgs([$table])
+			->setMethods(['getParts'])
 			->getMockForAbstractClass();
-		$query->expects($this->any())
+		$parts = ['SELECT', '*', 'FROM', ':table'];
+		$query->expects($this->once())
 			->method('getParts')
 			->will($this->returnValue($parts));
 		$this->assertFalse($query->isExecuted());
@@ -87,19 +98,18 @@ class TableQueryTest extends \PHPUnit_Framework_TestCase {
 		$table = $this->getMockBuilder(\Sharkodlak\FluentDb\Table::class)
 			->disableOriginalConstructor()
 			->getMock();
-		$table->expects($this->any())
+		$table->expects($this->once())
 			->method('query')
 			->will($this->returnValue($statement));
-		$parts = ['SELECT', '*', 'FROM', '%s'];
+		$translations = [':table' => 'test_table'];
+		$table->expects($this->any())
+			->method('getPlaceholderTranslations')
+			->will($this->returnValue($translations));
 		$query = $this->getMockBuilder(TableQuery::class)
 			->setConstructorArgs([$table])
 			->getMockForAbstractClass();
-		$query->expects($this->any())
-			->method('getParts')
-			->will($this->returnValue($parts));
 		$this->assertFalse($query->isExecuted());
 		$this->expectException(\Exception::class);
 		$query->executeOnce();
 	}
-	*/
 }
