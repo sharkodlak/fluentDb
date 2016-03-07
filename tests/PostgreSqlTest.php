@@ -31,26 +31,42 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 		}
 	}
 
-	public function testAutoSelectColumnsFirstRun() {
+	public function testAutoSelectColumns() {
+		$actors = $this->db->actor;
+		$expected = [
+			'SELECT * FROM actor',
+			'SELECT first_name, last_name FROM actor',
+		];
+		for ($i = 0; $i < 2; ++$i) {
+			foreach ($actors as $actor) {
+				$actorName = $actor['first_name'] . ' ' . $actor['last_name'];
+			}
+			$query = $actors->getQuery();
+			$this->assertEquals($expected[$i], (string) $query);
+			$this->assertTrue($query->isExecuted());
+			$actors->getQuery()->dropResult();
+		}
+	}
+
+	public function testReuseAnother() {
 		$actors = $this->db->actor;
 		foreach ($actors as $actor) {
 			$actorName = $actor['first_name'] . ' ' . $actor['last_name'];
 		}
 		$expected = 'SELECT * FROM actor';
-		$this->assertEquals($expected, (string) $actors->getQuery());
-		return $this->db;
-	}
-
-	/**
-	 * @depends testAutoSelectColumnsFirstRun
-	 */
-	public function testAutoSelectColumnsNextRun($db) {
-		$actors = $db->actor;
+		$query = $actors->getQuery();
+		$this->assertEquals($expected, (string) $query);
+		$this->assertTrue($query->isExecuted());
+		// Another query
+		$actors = $this->db->actor;
 		foreach ($actors as $actor) {
-			$actorName = $actor['first_name'] . ' ' . $actor['last_name'];
+			$actorSurname = $actor['last_name'];
 		}
-		$expected = 'SELECT first_name, last_name FROM actor';
-		$this->assertEquals($expected, (string) $actors->getQuery());
+		$expected = 'SELECT * FROM actor';
+		$query = $actors->getQuery();
+		$this->assertEquals($expected, (string) $query);
+		$this->assertFalse($query->isExecuted(), 'Query has not to be executed, because result from another query can be used.');
+		return $db;
 	}
 
 

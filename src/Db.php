@@ -29,6 +29,10 @@ class Db {
 		return new Table($this, $name);
 	}
 
+	public function getConventionPrimaryKey($tableName) {
+		return $this->convention->getPrimaryKey($tableName);
+	}
+
 	public function getConventionTableName($tableName) {
 		return $this->convention->getTableName($tableName);
 	}

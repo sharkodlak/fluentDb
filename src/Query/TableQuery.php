@@ -11,11 +11,9 @@ abstract class TableQuery implements Query {
 		$this->table = $table;
 	}
 
-	public function getResult() {
-		if (!$this->isExecuted()) {
-			$this->execute();
-		}
-		return $this->result;
+	public function dropResult() {
+		$this->result = null;
+		return $this;
 	}
 
 	public function executeOnce() {
@@ -23,6 +21,13 @@ abstract class TableQuery implements Query {
 			throw new \Sharkodlak\Exception\IllegalStateException('Query is already executed.');
 		}
 		return $this->execute();
+	}
+
+	public function getResult() {
+		if (!$this->isExecuted()) {
+			$this->execute();
+		}
+		return $this->result;
 	}
 
 	public function isExecuted() {

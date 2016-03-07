@@ -3,11 +3,15 @@
 namespace Sharkodlak\FluentDb;
 
 class TableTest extends \PHPUnit_Framework_TestCase {
+	public function testIterator() {
+
+	}
+
 	public function testArrayAccess() { // Select only row matching given id
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
-	public function testInvoke() { // Table is called as a function, it has same meaning as execute
+	public function testInvoke() { // Table is called as a function, throw exception
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
