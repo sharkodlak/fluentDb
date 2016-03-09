@@ -33,6 +33,14 @@ To obtain referencing column value instead of referenced table, use column name.
 
 	$row['language_id']
 
+To work with Row as an array use \ArrayAccess, \IteratorAggregate or `toArray` method.
+
+	$row['name']; // Array access to column name
+	foreach ($row->getIterator() as $columnName => $value) { // Iterate over all columns
+		$columnName . ': ' . $value;
+	}
+	$row->toArray(); // Get all columns as array
+
 Get corresponding rows from referenced table found by specified column. Method `Table->source()` specifies which column use from first table.
 To specify which column match method `Table->references()` shall be used.
 
