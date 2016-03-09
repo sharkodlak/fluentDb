@@ -3,9 +3,38 @@
 namespace Sharkodlak\FluentDb;
 
 class TableTest extends \PHPUnit_Framework_TestCase {
-	public function testIterator() {
-
-	}
+	static private $language = [
+		1 => [
+			'language_id' => 1,
+			'name' => 'English',
+			'last_update' => '2006-02-15 10:02:19',
+		],
+		[
+			'language_id' => 2,
+			'name' => 'Italian',
+			'last_update' => '2006-02-15 10:02:19',
+		],
+		[
+			'language_id' => 3,
+			'name' => 'Japanese',
+			'last_update' => '2006-02-15 10:02:19',
+		],
+		[
+			'language_id' => 4,
+			'name' => 'Mandarin',
+			'last_update' => '2006-02-15 10:02:19',
+		],
+		[
+			'language_id' => 5,
+			'name' => 'French',
+			'last_update' => '2006-02-15 10:02:19',
+		],
+		[
+			'language_id' => 6,
+			'name' => 'German',
+			'last_update' => '2006-02-15 10:02:19',
+		],
+	];
 
 	public function testArrayAccess() { // Select only row matching given id
 		$this->markTestIncomplete('Not implemented yet.');
@@ -118,5 +147,35 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 			->with($this->equalTo($expected));
 		$table = new Table($db, 'language');
 		$table->query($query);
+	}
+
+	public function testIterator() {
+		$pdoStatement = $this->getMockBuilder('PDOStatement')
+			->disableOriginalConstructor()
+			->getMock();
+		$pdoStatement->expects($this->once())
+			->method('execute')
+			->will($this->returnValue(true));
+		$languageFetches = array_pad(self::$language, count(self::$language) + 1, false);
+		$pdoStatement->expects($this->exactly(count($languageFetches)))
+			->method('fetch')
+			->will(call_user_func_array(array($this, 'onConsecutiveCalls'), $languageFetches));
+		$db = $this->getMockBuilder(Db::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$db->expects($this->exactly(2))
+			->method('getConventionTableName')
+			->will($this->returnArgument(0));
+		$db->expects($this->once())
+			->method('getConventionPrimaryKey')
+			->will($this->returnValue('language_id'));
+		$db->expects($this->once())
+			->method('query')
+			->will($this->returnValue($pdoStatement));
+		$table = new Table($db, 'language');
+		foreach ($table as $id => $row) {
+			$expected = self::$language[$id];
+			$this->assertEquals($expected, $row->toArray());
+		}
 	}
 }

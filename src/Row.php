@@ -2,7 +2,7 @@
 
 namespace Sharkodlak\FluentDb;
 
-class Row implements \ArrayAccess {
+class Row implements \ArrayAccess, \IteratorAggregate {
 	private $data;
 	private $table;
 
@@ -25,5 +25,13 @@ class Row implements \ArrayAccess {
 
 	public function offsetUnset($offset) {
 		unset($this->data[$offset]);
+	}
+
+	public function getIterator() {
+		return new \ArrayIterator($this->data);
+	}
+
+	public function toArray() {
+		return $this->data;
 	}
 }

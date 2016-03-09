@@ -59,7 +59,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($query->isExecuted());
 		// Another query
 		$actors = $this->db->actor;
-		foreach ($actors as $actor) {
+		foreach ($actors as $id => $actor) {
 			$actorSurname = $actor['last_name'];
 		}
 		$expected = 'SELECT * FROM actor';

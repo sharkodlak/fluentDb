@@ -3,7 +3,6 @@
 namespace Sharkodlak\FluentDb;
 
 class Table implements \Iterator {
-	private $currentRow;
 	private $db;
 	private $name;
 	private $primaryKey;
@@ -17,25 +16,23 @@ class Table implements \Iterator {
 	}
 
 	public function current() {
-		return new Row($this, $this->currentRow);
+		return new Row($this, $this->query->current());
 	}
 
 	public function key() {
-		return $this->currentRow[$this->primaryKey];
+		return $this->query->current()[$this->primaryKey];
 	}
 
 	public function next() {
-		$result = $this->query->getResult();
-		$this->currentRow = $result->fetch(\PDO::FETCH_ASSOC);
+		$this->query->next();
 	}
 
 	public function rewind() {
-		$result = $this->query->getResult();
-		$this->currentRow = $result->fetch(\PDO::FETCH_ASSOC, \PDO::FETCH_ORI_FIRST);
+		$this->query->rewind();
 	}
 
 	public function valid() {
-		return $this->currentRow !== false;
+		return $this->query->valid();
 	}
 
 	public function getDb() {
