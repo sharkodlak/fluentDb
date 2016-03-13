@@ -45,10 +45,10 @@ class Db {
 	public function saveTableColumns($tableName, array $columns) {
 		$item = $this->getTableColumnsItem($tableName);
 		$item->set($columns);
-		return $this->cache->save($item);
+		return $this->cache->saveDeferred($item);
 	}
 
-	protected function getTableColumnsItem($tableName) {
+	private function getTableColumnsItem($tableName) {
 		$cacheKey = $this->convention->getCacheKeyTableColumns($tableName);
 		return $this->cache->getItem($cacheKey);
 	}
