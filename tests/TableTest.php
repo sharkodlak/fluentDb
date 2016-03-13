@@ -106,19 +106,12 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetConventionTableName() {
-		$pdo = $this->getMockBuilder('PDO')
+		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
 			->getMock();
-		$cache = $this->getMockBuilder(\Psr\Cache\CacheItemPoolInterface::class)
-			->getMock();
-		$convention = $this->getMockBuilder(Structure\DefaultConvention::class)
-			->setConstructorArgs(['id', '%s_id', 'prefix_%ss_suffix'])
-			->setMethods(null)
-			->getMock();
-		$db = $this->getMockBuilder(Db::class)
-			->setConstructorArgs([$pdo, $cache, $convention])
-			->setMethods(null)
-			->getMock();
+		$db->expects($this->once())
+			->method('getConventionTableName')
+			->will($this->returnValue('prefix_languages_suffix'));
 		$table = new Table($db, 'language');
 		$this->assertSame('prefix_languages_suffix', $table->getConventionTableName());
 	}

@@ -9,9 +9,16 @@ class DbTest extends \PHPUnit_Framework_TestCase {
 			->getMock();
 		$cache = $this->getMockBuilder(\Psr\Cache\CacheItemPoolInterface::class)
 			->getMock();
-		$convention = $this->getMockBuilder(Structure\DefaultConvention::class)
-			->disableOriginalConstructor()
+		$cacheItem = $this->getMockBuilder(\Psr\Cache\CacheItemInterface::class)
 			->getMock();
+		$cache->expects($this->any())
+			->method('getItem')
+			->will($this->returnValue($cacheItem));
+		$convention = $this->getMockBuilder(Structure\Convention::class)
+			->getMock();
+		$convention->expects($this->once())
+			->method('getCacheKeyTableColumns')
+			->will($this->returnArgument(0));
 		$db = new Db($pdo, $cache, $convention);
 		$this->assertInstanceOf(Table::class, $db->film);
 	}

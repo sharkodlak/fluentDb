@@ -3,6 +3,7 @@
 namespace Sharkodlak\FluentDb\Structure;
 
 class DefaultConvention implements Convention {
+	private $cacheKeyTableColumns = '%s.columns';
 	private $primary;
 	private $foreign;
 	private $table;
@@ -23,5 +24,9 @@ class DefaultConvention implements Convention {
 
 	public function getTableName($tableName) {
 		return sprintf($this->table, $tableName);
+	}
+
+	public function getCacheKeyTableColumns($tableName) {
+		return sprintf($this->cacheKeyTableColumns, $tableName);
 	}
 }

@@ -37,6 +37,22 @@ class Db {
 		return $this->convention->getTableName($tableName);
 	}
 
+	public function getTableColumns($tableName) {
+		$item = $this->getTableColumnsItem($tableName);
+		return $item->get();
+	}
+
+	public function saveTableColumns($tableName, array $columns) {
+		$item = $this->getTableColumnsItem($tableName);
+		$item->set($columns);
+		return $this->cache->save($item);
+	}
+
+	protected function getTableColumnsItem($tableName) {
+		$cacheKey = $this->convention->getCacheKeyTableColumns($tableName);
+		return $this->cache->getItem($cacheKey);
+	}
+
 	public function query($query) {
 		return $this->pdo->query($query);
 	}
