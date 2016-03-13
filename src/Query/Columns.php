@@ -8,7 +8,7 @@ class Columns {
 	public function __toString() {
 		$columns = [];
 		foreach ($this->columns as $columnName => $expression) {
-			if ($expression == null) {
+			if ($expression === null) {
 				$columns[$columnName] = $columnName;
 			} else {
 				$columns[$columnName] = $expression . ' AS ' . $columnName;

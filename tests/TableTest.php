@@ -171,4 +171,53 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 			$this->assertEquals($expected, $row->toArray());
 		}
 	}
+
+	public function testAutoSelectColumns() {
+		$expected = [
+			'SELECT * FROM language',
+			'SELECT language_id, name FROM language',
+		];
+		$iterations = count($expected);
+		$pdoStatement = $this->getMockBuilder('PDOStatement')
+			->disableOriginalConstructor()
+			->getMock();
+		$pdoStatement->expects($this->exactly($iterations))
+			->method('execute')
+			->will($this->returnValue(true));
+		$languageFetches = array_pad(self::$language, count(self::$language) + 1, false);
+		$languageFetchesCallback = function() use (&$languageFetches) {
+			if (key($languageFetches) === null) {
+				$current = reset($languageFetches);
+			} else {
+				$current = current($languageFetches);
+			}
+			next($languageFetches);
+			return $current;
+		};
+		$pdoStatement->expects($this->exactly(2 * $iterations * count($languageFetches)))
+			->method('fetch')
+			->will($this->returnCallback($languageFetchesCallback));
+		$db = $this->getMockBuilder(Db::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$db->expects($this->any())
+			->method('getConventionTableName')
+			->will($this->returnArgument(0));
+		$db->expects($this->once())
+			->method('getConventionPrimaryKey')
+			->will($this->returnValue('language_id'));
+		$db->expects($this->exactly($iterations))
+			->method('query')
+			->will($this->returnValue($pdoStatement));
+		$table = new Table($db, 'language');
+		for ($i = 0; $i < $iterations; ++$i) {
+			foreach ($table as $id => $row) {
+				$row['name'];
+			}
+			$query = $table->getQuery();
+			$this->assertEquals($expected[$i], (string) $query);
+			$this->assertTrue($query->isExecuted());
+			$query->dropResult();
+		}
+	}
 }
