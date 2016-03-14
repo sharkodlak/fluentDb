@@ -30,6 +30,7 @@ class Table implements \Iterator {
 	}
 
 	public function key() {
+		$this->reportColumnUsage($this->primaryKey);
 		return $this->query->current()[$this->primaryKey];
 	}
 
@@ -51,6 +52,9 @@ class Table implements \Iterator {
 
 	public function reportColumnsUsage(array $usedColumns) {
 		$newUsedColumns = array_diff($usedColumns, $this->usedColumns);
+		if (!empty($newUsedColumns)) {
+			$this->isColumnUsageReportingEnabled = true;
+		}
 		$this->usedColumns = array_merge($this->usedColumns, $newUsedColumns);
 		return $this;
 	}

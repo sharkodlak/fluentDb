@@ -8,7 +8,8 @@ class Select extends TableQuery implements \Iterator {
 
 	public function __construct(\Sharkodlak\FluentDb\Table $table) {
 		parent::__construct($table);
-		$columns = $table->getUsedColumns() ?: '*';
+		$usedColumns = $table->getUsedColumns();
+		$columns = empty($usedColumns) ? '*' : new PartsComma($usedColumns);
 		$this->parts = [
 			'command' => 'SELECT',
 			'columns' => $columns,

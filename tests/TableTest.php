@@ -36,6 +36,32 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		],
 	];
 
+	public function test__destructWithReportingDisabled() {
+		$db = $this->getMockBuilder(Db::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$db->expects($this->never())
+			->method('saveTableColumns');
+		$table = new Table($db, 'language');
+		$table->__destruct();
+	}
+
+	public function test__destruct() {
+		$db = $this->getMockBuilder(Db::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$db->expects($this->once())
+			->method('saveTableColumns')
+			->with(
+				$this->equalTo('language'),
+				$this->equalTo(['language_id', 'name'])
+			);
+		$table = new Table($db, 'language');
+		$table->reportColumnUsage('language_id');
+		$table->reportColumnUsage('name');
+		$table->__destruct();
+	}
+
 	public function testArrayAccess() { // Select only row matching given id
 		$this->markTestIncomplete('Not implemented yet.');
 	}
@@ -174,8 +200,8 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 
 	public function testAutoSelectColumns() {
 		$expected = [
-			'SELECT * FROM language',
-			'SELECT language_id, name FROM language',
+			[],
+			['language_id', 'name'],
 		];
 		$iterations = count($expected);
 		$pdoStatement = $this->getMockBuilder('PDOStatement')
@@ -194,7 +220,7 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 			next($languageFetches);
 			return $current;
 		};
-		$pdoStatement->expects($this->exactly(2 * $iterations * count($languageFetches)))
+		$pdoStatement->expects($this->exactly($iterations * count($languageFetches)))
 			->method('fetch')
 			->will($this->returnCallback($languageFetchesCallback));
 		$db = $this->getMockBuilder(Db::class)
@@ -203,19 +229,22 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$db->expects($this->any())
 			->method('getConventionTableName')
 			->will($this->returnArgument(0));
-		$db->expects($this->once())
+		$db->expects($this->exactly($iterations))
 			->method('getConventionPrimaryKey')
 			->will($this->returnValue('language_id'));
 		$db->expects($this->exactly($iterations))
+			->method('getTableColumns')
+			->will($this->onConsecutiveCalls(null, $expected[1]));
+		$db->expects($this->exactly($iterations))
 			->method('query')
 			->will($this->returnValue($pdoStatement));
-		$table = new Table($db, 'language');
 		for ($i = 0; $i < $iterations; ++$i) {
+			$table = new Table($db, 'language');
+			$this->assertEquals($expected[$i], $table->getUsedColumns());
 			foreach ($table as $id => $row) {
 				$row['name'];
 			}
 			$query = $table->getQuery();
-			$this->assertEquals($expected[$i], (string) $query);
 			$this->assertTrue($query->isExecuted());
 			$query->dropResult();
 		}
