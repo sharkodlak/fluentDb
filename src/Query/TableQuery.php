@@ -4,8 +4,8 @@ namespace Sharkodlak\FluentDb\Query;
 
 abstract class TableQuery implements Query {
 	protected $parts = [];
-	private $result;
-	private $table;
+	protected $result;
+	protected $table;
 
 	public function __construct(\Sharkodlak\FluentDb\Table $table) {
 		$this->table = $table;

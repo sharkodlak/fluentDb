@@ -44,7 +44,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 			$query = $actors->getQuery();
 			$this->assertEquals($expected[$i], (string) $query);
 			$this->assertTrue($query->isExecuted());
-			$actors->getQuery()->dropResult();
+			$query->dropResult();
 		}
 	}
 
