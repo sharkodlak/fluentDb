@@ -14,10 +14,11 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 	}
 
 	public function offsetExists($offset) {
-		if ($this->isColumnUsageReportingEnabled) {
+		$exists = array_key_exists($offset, $this->data);
+		if ($exists && $this->isColumnUsageReportingEnabled) {
 			$this->table->reportColumnUsage($offset);
 		}
-		return array_key_exists($offset, $this->data);
+		return $exists;
 	}
 
 	public function offsetGet($offset) {
@@ -36,11 +37,7 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 	}
 
 	public function getIterator() {
-		if ($this->isColumnUsageReportingEnabled) {
-			$usedColumns = array_keys($this->data);
-			$this->table->reportColumnsUsage($usedColumns);
-		}
-		return new \ArrayIterator($this->data);
+		return new \ArrayIterator($this->toArray());
 	}
 
 	public function toArray() {

@@ -20,10 +20,6 @@ Select all rows from table actor, but let library to select only necessary colum
 In previous example only columns actor_id (as table primary key), first_name and last_name will be automatically selected
 in consecutive calls (in case of cache hit).
 
-It's also possible to get one row from table defined by it's id.
-
-	$row = $db->film[$id]
-
 To get referenced table, simply get table name from row. Library uses `Structure\Convention->foreignKey()` as source to match
 referenced table primary key identified by `Structure\Convention->primaryKey()`.
 
@@ -52,3 +48,10 @@ To specify which column match method `Table->references()` shall be used.
 Both methods accepts multiple arguments to allow table referencing by compound key.
 
 	$row->target->source('lang_id', 'target_id')->references('lang', 'id');
+
+
+Following features will be implemented later...
+
+It's also possible to get one row from table defined by it's id.
+
+	$row = $db->film[$id]
