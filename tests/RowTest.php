@@ -114,4 +114,30 @@ class RowTest extends \PHPUnit_Framework_TestCase {
 		$data = iterator_to_array($row->getIterator());
 		$this->assertEquals(self::$languageRow, $data);
 	}
+
+	public function testGetDb() {
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$db = $this->getMockBuilder(Db::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table->expects($this->once())
+			->method('getDb')
+			->will($this->returnValue($db));
+		$row = new Row($table, self::$languageRow);
+		$this->assertSame($db, $row->getDb());
+	}
+
+	public function testGetPrimaryKey() {
+		$expected = 'table_id';
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table->expects($this->once())
+			->method('getPrimaryKey')
+			->will($this->returnValue($expected));
+		$row = new Row($table, self::$languageRow);
+		$this->assertSame($expected, $row->getPrimaryKey());
+	}
 }
