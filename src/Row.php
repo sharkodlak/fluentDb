@@ -13,6 +13,11 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 		$this->isColumnUsageReportingEnabled = $isColumnUsageReportingEnabled;
 	}
 
+	public function __get($name) {
+		$factory = $this->table->getFactory();
+		return $factory->getReferenceByTableName($this, $name);
+	}
+
 	public function offsetExists($offset) {
 		$exists = array_key_exists($offset, $this->data);
 		if ($exists && $this->isColumnUsageReportingEnabled) {
@@ -46,5 +51,13 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 			$this->table->reportColumnsUsage($usedColumns);
 		}
 		return $this->data;
+	}
+
+	public function getDb() {
+		return $this->table->getDb();
+	}
+
+	public function getPrimaryKey() {
+		return $this->table->getPrimaryKey();
 	}
 }

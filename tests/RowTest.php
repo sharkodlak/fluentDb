@@ -3,15 +3,19 @@
 namespace Sharkodlak\FluentDb;
 
 class RowTest extends \PHPUnit_Framework_TestCase {
+	static private $filmRow = [
+		'film_id' => 1,
+		'title' => 'Academy Dinosaur',
+		'description' => 'A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies',
+		'release_year' => 2006,
+		'language_id' => 1,
+		'length' => 86,
+	];
 	static private $languageRow = [
 		'language_id' => 1,
 		'name' => 'English',
 		'last_update' => '2006-02-15 10:02:19',
 	];
-
-	public function testCallTable() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
 
 	public function testOffsetExists() {
 		$table = $this->getMockBuilder(Table::class)
@@ -62,6 +66,33 @@ class RowTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(self::$languageRow['name'], $row['name']);
 		// Next column shall be loaded from DB just in time
 		$this->assertEquals(self::$languageRow['last_update'], $row['last_update']);
+	}
+
+	public function testCallTable() {
+		$films = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$reference = $this->getMockBuilder(Reference::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory->expects($this->once())
+			->method('getReferenceByTableName')
+			->will($this->returnValue($reference));
+		$films->expects($this->once())
+			->method('getFactory')
+			->will($this->returnValue($factory));
+		$films->expects($this->once())
+			->method('reportColumnUsage')
+			->with($this->equalTo('language_id'));
+		$film = new Row($films, self::$filmRow, true);
+		$filmLanguage = $film->language;
+		$this->assertInstanceOf(Reference::class, $filmLanguage);
+		$this->markTestIncomplete();
+		$this->assertEquals(self::$languageRow['language_id'], $filmLanguage['language_id']);
+		$this->assertEquals(self::$languageRow['name'], $filmLanguage['name']);
+		$this->assertEquals(self::$languageRow['last_update'], $filmLanguage['last_update']);
 	}
 
 	public function testToArray() {

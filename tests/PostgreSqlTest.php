@@ -11,7 +11,8 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 			$pdo = new \PDO('uri:file://' . $file);
 			$cache = new \Stash\Pool();
 			$convention = new Structure\DefaultConvention('%s_id');
-			$this->db = new Db($pdo, $cache, $convention);
+			$factory = new Factory\Simple();
+			$this->db = new Db($pdo, $cache, $convention, $factory);
 		}
 	}
 
@@ -49,6 +50,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testReuseAnother() {
+		$this->markTestIncomplete('Not implemented yet.');
 		$actors = $this->db->actor;
 		foreach ($actors as $actor) {
 			$actorName = $actor['first_name'] . ' ' . $actor['last_name'];
@@ -71,7 +73,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 
 
 	public function testGetQuery() {
-		$this->markTestSkipped('Not implemented yet.');
+		$this->markTestIncomplete('Not implemented yet.');
 		$expected = 'SELECT film.*, language.name, category.name
 			FROM film
 				JOIN language USING (language_id)
@@ -86,7 +88,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testTable() {
-		$this->markTestSkipped('Not implemented yet.');
+		$this->markTestIncomplete('Not implemented yet.');
 		$expected = [];
 		$actual = [];
 		// SELECT * FROM film ORDER BY film_id DESC OFFSET 10 LIMIT 3
@@ -107,7 +109,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testMultipleRuns() {
-		$this->markTestSkipped('Not implemented yet.');
+		$this->markTestIncomplete('Not implemented yet.');
 		for ($i = 0; $i < 3; ++$i) {
 			// 1st run: SELECT * FROM film
 			// 2nd run: SELECT film_id, title FROM film
@@ -128,7 +130,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCacheInvalidation() {
-		$this->markTestSkipped('Not implemented yet.');
+		$this->markTestIncomplete('Not implemented yet.');
 		for ($i = 0; $i < 3; ++$i) {
 			// 1st run: SELECT * FROM film
 			// 2nd run: SELECT film_id, title FROM film
@@ -142,7 +144,7 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCacheStillValid() {
-		$this->markTestSkipped('Not implemented yet.');
+		$this->markTestIncomplete('Not implemented yet.');
 		for ($i = 0; $i < 3; ++$i) {
 			// 1st run: SELECT * FROM film
 			// 2nd run: Reuse result from previous run

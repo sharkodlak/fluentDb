@@ -70,50 +70,6 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
-	public function testExecute() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testJoin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testJoinReverse() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testLeftJoin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testLeftJoinReverse() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testLimit() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testOffset() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testOrder() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testWhere() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testWholeTable() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	public function testMatchingRows() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
 	public function testGetDb() {
 		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
@@ -182,6 +138,20 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
 			->getMock();
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$row = $this->getMockBuilder(Row::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$row->expects($this->exactly(count(self::$language)))
+			->method('toArray')
+			->will(call_user_func_array(array($this, 'onConsecutiveCalls'), self::$language));
+		$factory->expects($this->exactly(count(self::$language)))
+			->method('getRow')
+			->will($this->returnValue($row));
+		$db->expects($this->exactly(count(self::$language)))
+			->method('getFactory')
+			->will($this->returnValue($factory));
 		$db->expects($this->exactly(2))
 			->method('getConventionTableName')
 			->will($this->returnArgument(0));
@@ -226,6 +196,11 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
 			->getMock();
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$db->expects($this->exactly($iterations * count(self::$language)))
+			->method('getFactory')
+			->will($this->returnValue($factory));
 		$db->expects($this->any())
 			->method('getConventionTableName')
 			->will($this->returnArgument(0));

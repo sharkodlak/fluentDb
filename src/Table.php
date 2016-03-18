@@ -26,7 +26,12 @@ class Table implements \Iterator {
 	}
 
 	public function current() {
-		return new Row($this, $this->query->current(), $this->isColumnUsageReportingEnabled);
+		$factory = $this->getFactory();
+		return $factory->getRow($this, $this->query->current(), $this->isColumnUsageReportingEnabled);
+	}
+
+	public function getFactory() {
+		return $this->db->getFactory();
 	}
 
 	public function key() {
@@ -81,6 +86,10 @@ class Table implements \Iterator {
 
 	public function getConventionTableName() {
 		return $this->db->getConventionTableName($this->name);
+	}
+
+	public function getPrimaryKey() {
+		return $this->primaryKey;
 	}
 
 	public function getQuery() {

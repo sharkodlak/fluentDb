@@ -16,10 +16,15 @@ class DbTest extends \PHPUnit_Framework_TestCase {
 			->will($this->returnValue($cacheItem));
 		$convention = $this->getMockBuilder(Structure\Convention::class)
 			->getMock();
-		$convention->expects($this->once())
-			->method('getCacheKeyTableColumns')
-			->will($this->returnArgument(0));
-		$db = new Db($pdo, $cache, $convention);
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory->expects($this->once())
+			->method('getTable')
+			->will($this->returnValue($table));
+		$db = new Db($pdo, $cache, $convention, $factory);
 		$this->assertInstanceOf(Table::class, $db->film);
 	}
 
@@ -41,7 +46,9 @@ class DbTest extends \PHPUnit_Framework_TestCase {
 		$convention->expects($this->once())
 			->method('getTableName')
 			->will($this->returnValue($expected['tableName']));
-		$db = new Db($pdo, $cache, $convention);
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$db = new Db($pdo, $cache, $convention, $factory);
 		$this->assertSame($expected['primaryKey'], $db->getConventionPrimaryKey('language'));
 		$this->assertSame($expected['tableName'], $db->getConventionTableName('language'));
 	}
@@ -71,7 +78,9 @@ class DbTest extends \PHPUnit_Framework_TestCase {
 			->with($this->equalTo($expected[1]));
 		$convention = $this->getMockBuilder(Structure\Convention::class)
 			->getMock();
-		$db = new Db($pdo, $cache, $convention);
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$db = new Db($pdo, $cache, $convention, $factory);
 		$this->assertSame($expected[0], $db->getTableColumns('language'));
 		$db->saveTableColumns('language', $expected[1]);
 		$this->assertSame($expected[1], $db->getTableColumns('language'));
@@ -90,7 +99,9 @@ class DbTest extends \PHPUnit_Framework_TestCase {
 		$convention = $this->getMockBuilder(Structure\DefaultConvention::class)
 			->disableOriginalConstructor()
 			->getMock();
-		$db = new Db($pdo, $cache, $convention);
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$db = new Db($pdo, $cache, $convention, $factory);
 		$db->query($query);
 	}
 }
