@@ -98,6 +98,17 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$this->assertSame('prefix_languages_suffix', $table->getConventionTableName());
 	}
 
+	public function testGetPrimaryKey() {
+		$db = $this->getMockBuilder(Db::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$db->expects($this->once())
+			->method('getConventionPrimaryKey')
+			->will($this->returnValue('language_id'));
+		$table = new Table($db, 'language');
+		$this->assertSame('language_id', $table->getPrimaryKey());
+	}
+
 	public function testGetQuery() {
 		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
