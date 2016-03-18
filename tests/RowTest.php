@@ -140,4 +140,24 @@ class RowTest extends \PHPUnit_Framework_TestCase {
 		$row = new Row($table, self::$languageRow);
 		$this->assertSame($expected, $row->getPrimaryKey());
 	}
+
+	public function test__Get() {
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$reference = $this->getMockBuilder(Reference::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory->expects($this->once())
+			->method('getReferenceByTableName')
+			->with($this->isInstanceOf(Row::class), $this->equalTo('anotherTable'))
+			->will($this->returnValue($reference));
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table->expects($this->once())
+			->method('getFactory')
+			->will($this->returnValue($factory));
+		$row = new Row($table, self::$languageRow);
+		$this->assertSame($reference, $row->anotherTable);
+	}
 }
