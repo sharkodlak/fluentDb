@@ -80,6 +80,7 @@ class Table implements \Iterator {
 
 	public function getPlaceholderTranslations() {
 		return [
+			':id' => $this->getPrimaryKey(),
 			':table' => $this->getConventionTableName(),
 		];
 	}
@@ -98,5 +99,9 @@ class Table implements \Iterator {
 
 	public function getUsedColumns() {
 		return $this->usedColumns;
+	}
+
+	public function where(...$args) {
+		return $this->query->where(...$args);
 	}
 }

@@ -12,7 +12,14 @@ class Reference {
 	}
 
 	public function via($rowColumnName = null, $tableColumnName = null) {
-
+		$rowColumnName = $this->getRowColumnName($rowColumnName);
+		$tableColumnName = $this->getTableColumnName($tableColumnName);
+		$rowQuery = clone $this->row->getQuery();
+		$rowQuery->getBuilder()['SELECT'] = ':id';
+		var_dump((string) $rowQuery);
+		// SELECT * FROM table WHERE :id IN (SELECT :id FROM row_table)
+		$query = $this->table->where(':id IN (%s)', $rowQuery);
+		var_dump((string) $query);
 	}
 
 	public function getRowColumnName($name) {

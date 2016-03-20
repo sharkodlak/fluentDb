@@ -60,4 +60,8 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 	public function getPrimaryKey() {
 		return $this->table->getPrimaryKey();
 	}
+
+	public function getQuery() {
+		return $this->table->getQuery();
+	}
 }

@@ -3,17 +3,15 @@
 namespace Sharkodlak\FluentDb\Query;
 
 class Select extends TableQuery implements \Iterator {
+	private $command = 'SELECT';
 	private $currentOffset = 0;
 	private $currentRow;
 
 	public function __construct(\Sharkodlak\FluentDb\Table $table) {
 		parent::__construct($table);
-		$this->parts = [
-			'command' => 'SELECT',
-			'columns' => null,
-			'fromClause' => 'FROM',
-			'table' => ':table'
-		];
+		$this->builder = $table->getFactory()
+			->getQueryBuilder($this->command, 'FROM', 'WHERE')
+			->from(':table');
 		$this->setupColumns();
 	}
 
@@ -24,7 +22,7 @@ class Select extends TableQuery implements \Iterator {
 
 	final public function setupColumns() {
 		$usedColumns = $this->table->getUsedColumns();
-		$this->parts['columns'] = empty($usedColumns) ? '*' : new PartsComma($usedColumns);
+		$this->builder[$this->command] = $usedColumns ?: '*';
 		return $this;
 	}
 
