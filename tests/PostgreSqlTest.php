@@ -3,6 +3,40 @@
 namespace Sharkodlak\FluentDb;
 
 class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
+	private static $films = [
+		1 => [
+			'film_id' => 1,
+			'title' => 'Academy Dinosaur',
+			'description' => 'A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies',
+			'release_year' => 2006,
+			'language_id' => 1,
+			'length' => 86,
+		],
+		[
+			'film_id' => 2,
+			'title' => 'Ace Goldfinger',
+			'description' => 'A Astounding Epistle of a Database Administrator And a Explorer who must Find a Car in Ancient China',
+			'release_year' => 2006,
+			'language_id' => 1,
+			'length' => 48,
+		],
+		[
+			'film_id' => 3,
+			'title' => 'Adaptation Holes',
+			'description' => 'A Astounding Reflection of a Lumberjack And a Car who must Sink a Lumberjack in A Baloon Factory',
+			'release_year' => 2006,
+			'language_id' => 1,
+			'length' => 50,
+		],
+	];
+	private static $languages = [
+		1 => [
+			'language_id' => 1,
+			'name' => 'English             ',
+			'last_update' => '2006-02-15 10:02:19',
+		],
+	];
+
 	public function setUp() {
 		$file = '/etc/fluentdb/.dbconnect';
 		if (!file_exists($file)) {
@@ -69,6 +103,21 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, (string) $query);
 		$this->assertFalse($query->isExecuted(), 'Query has not to be executed, because result from another query can be used.');
 		return $db;
+	}
+
+	public function testReferenceVia() {
+		$file = '/etc/fluentdb/.dbconnect';
+		$pdo = new \PDO('uri:file://' . $file);
+		$cache = new \Stash\Pool();
+		$convention = new Structure\DefaultConvention('%s_id');
+		$factory = new Factory\Simple();
+		$db = new Db($pdo, $cache, $convention, $factory);
+		foreach ($db->film as $filmId => $film) {
+			if ($filmId > 5) {
+				break;
+			}
+			$this->assertEquals(self::$languages[1], $film->language->via()->toArray());
+		}
 	}
 
 

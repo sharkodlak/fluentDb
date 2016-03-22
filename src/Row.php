@@ -13,6 +13,12 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 		$this->isColumnUsageReportingEnabled = $isColumnUsageReportingEnabled;
 	}
 
+	public function __debugInfo() {
+		return [
+			'data' => $this->data,
+		];
+	}
+
 	public function __get($name) {
 		$factory = $this->table->getFactory();
 		return $factory->getReferenceByTableName($this, $name);

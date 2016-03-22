@@ -27,9 +27,14 @@ class Builder implements \ArrayAccess {
 		return $this->offsetSet('FROM', $table);
 	}
 
+	public function orderBy($column) {
+		return $this->offsetSet('ORDER BY', $column);
+	}
+
 	public function offsetSet($offset, $value) {
 		switch ($offset) {
 			case 'SELECT':
+			case 'ORDER BY':
 				$value = new Parts\PartsComma((array) $value);
 				break;
 		}

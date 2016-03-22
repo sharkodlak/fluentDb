@@ -10,7 +10,7 @@ class Select extends TableQuery implements \Iterator {
 	public function __construct(\Sharkodlak\FluentDb\Table $table) {
 		parent::__construct($table);
 		$this->builder = $table->getFactory()
-			->getQueryBuilder($this->command, 'FROM', 'WHERE')
+			->getQueryBuilder($this->command, 'FROM', 'WHERE', 'ORDER BY')
 			->from(':table');
 		$this->setupColumns();
 	}
