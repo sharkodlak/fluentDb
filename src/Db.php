@@ -31,6 +31,10 @@ class Db {
 		return $this->factory->getTable($this, $name);
 	}
 
+	public function getConventionForeignKey($tableName) {
+		return $this->convention->getForeignKey($tableName);
+	}
+
 	public function getConventionPrimaryKey($tableName) {
 		return $this->convention->getPrimaryKey($tableName);
 	}

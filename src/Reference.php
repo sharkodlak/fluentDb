@@ -15,16 +15,18 @@ class Reference {
 		$rowColumnName = $this->getRowColumnName($rowColumnName);
 		$tableColumnName = $this->getTableColumnName($tableColumnName);
 		$rowQuery = clone $this->row->getQuery();
-		$rowQuery->getBuilder()['SELECT'] = ':id';
-		var_dump((string) $rowQuery);
+		$rowQueryBuilder = $rowQuery->getBuilder();
+		$rowQueryBuilder['SELECT'] = ':id';
 		// SELECT * FROM table WHERE :id IN (SELECT :id FROM row_table)
-		$query = $this->table->where(':id IN (%s)', $rowQuery);
-		var_dump((string) $query);
+		$this->table->where(':id IN (%s)', $rowQuery);
+		$rowColumnValue = $this->row[$rowColumnName];
+		return $this->table[$rowColumnValue];
 	}
 
 	public function getRowColumnName($name) {
-		if ($name === null || $name === ':id') {
-			return $this->row->getPrimaryKey();
+		if ($name === null) {
+			$tableName = $this->table->getName();
+			return $this->row->getForeignKey($tableName);
 		}
 		return $name;
 	}

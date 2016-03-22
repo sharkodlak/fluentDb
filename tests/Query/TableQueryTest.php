@@ -13,12 +13,17 @@ class TableQueryTest extends \PHPUnit_Framework_TestCase {
 			->will($this->returnValue($translations));
 		$query = $this->getMockBuilder(TableQuery::class)
 			->setConstructorArgs([$table])
-			->setMethods(['getParts'])
+			->setMethods(['getBuilder'])
 			->getMockForAbstractClass();
-		$parts = ['SELECT', '*', 'FROM', ':table'];
+		$builder = $this->getMockBuilder(Builder::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$builder->expects($this->once())
+			->method('__toString')
+			->will($this->returnValue("SELECT * FROM :table"));
 		$query->expects($this->once())
-			->method('getParts')
-			->will($this->returnValue($parts));
+			->method('getBuilder')
+			->will($this->returnValue($builder));
 		$expected = 'SELECT * FROM test_table';
 		$this->assertEquals($expected, (string) $query);
 	}
@@ -42,12 +47,17 @@ class TableQueryTest extends \PHPUnit_Framework_TestCase {
 			->will($this->returnValue($translations));
 		$query = $this->getMockBuilder(TableQuery::class)
 			->setConstructorArgs([$table])
-			->setMethods(['getParts'])
+			->setMethods(['getBuilder'])
 			->getMockForAbstractClass();
-		$parts = ['SELECT', '*', 'FROM', ':table'];
+		$builder = $this->getMockBuilder(Builder::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$builder->expects($this->once())
+			->method('__toString')
+			->will($this->returnValue("SELECT * FROM :table"));
 		$query->expects($this->once())
-			->method('getParts')
-			->will($this->returnValue($parts));
+			->method('getBuilder')
+			->will($this->returnValue($builder));
 		$this->assertFalse($query->isExecuted());
 		$this->assertInstanceOf('PDOStatement', $query->executeOnce());
 		$this->assertTrue($query->isExecuted());
@@ -72,15 +82,19 @@ class TableQueryTest extends \PHPUnit_Framework_TestCase {
 		$table->expects($this->any())
 			->method('getPlaceholderTranslations')
 			->will($this->returnValue($translations));
-		$parts = ['SELECT', '*', 'FROM', '%s'];
 		$query = $this->getMockBuilder(TableQuery::class)
 			->setConstructorArgs([$table])
-			->setMethods(['getParts'])
+			->setMethods(['getBuilder'])
 			->getMockForAbstractClass();
-		$parts = ['SELECT', '*', 'FROM', ':table'];
+		$builder = $this->getMockBuilder(Builder::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$builder->expects($this->once())
+			->method('__toString')
+			->will($this->returnValue("SELECT * FROM :table"));
 		$query->expects($this->once())
-			->method('getParts')
-			->will($this->returnValue($parts));
+			->method('getBuilder')
+			->will($this->returnValue($builder));
 		$this->assertFalse($query->isExecuted());
 		$this->assertInstanceOf('PDOStatement', $query->getResult());
 		$this->assertTrue($query->isExecuted());

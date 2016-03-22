@@ -57,6 +57,10 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 		return $this->table->getDb();
 	}
 
+	public function getForeignKey($tableName) {
+		return $this->table->getForeignKey($tableName);
+	}
+
 	public function getPrimaryKey() {
 		return $this->table->getPrimaryKey();
 	}

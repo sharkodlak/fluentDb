@@ -2,7 +2,7 @@
 
 namespace Sharkodlak\FluentDb;
 
-class RowTest extends \PHPUnit_Framework_TestCase {
+class ReferenceTest extends \PHPUnit_Framework_TestCase {
 	static private $filmRow = [
 		'film_id' => 1,
 		'title' => 'Academy Dinosaur',
@@ -18,6 +18,7 @@ class RowTest extends \PHPUnit_Framework_TestCase {
 	];
 
 	public function testVia() {
+		/*
 		$row = $this->getMockBuilder(Row::class)
 			->disableOriginalConstructor()
 			->getMock();
@@ -31,7 +32,7 @@ class RowTest extends \PHPUnit_Framework_TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		$reference = new Reference($row, $table);
-
+		*/
 		$file = '/etc/fluentdb/.dbconnect';
 		$pdo = new \PDO('uri:file://' . $file);
 		$cache = new \Stash\Pool();

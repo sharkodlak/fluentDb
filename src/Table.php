@@ -2,12 +2,13 @@
 
 namespace Sharkodlak\FluentDb;
 
-class Table implements \Iterator {
+class Table implements \ArrayAccess, \Iterator {
 	private $db;
 	private $isColumnUsageReportingEnabled;
 	private $name;
 	private $primaryKey;
 	private $query;
+	private $rows;
 	private $usedColumns;
 
 	public function __construct(Db $db, $name) {
@@ -16,7 +17,6 @@ class Table implements \Iterator {
 		$this->primaryKey = $db->getConventionPrimaryKey($name);
 		$this->usedColumns = $db->getTableColumns($name) ?: [];
 		$this->isColumnUsageReportingEnabled = empty($this->usedColumns);
-		$this->query = new Query\Select($this);
 	}
 
 	public function __destruct() {
@@ -25,9 +25,35 @@ class Table implements \Iterator {
 		}
 	}
 
+	public function offsetExists($offset) {
+		return array_key_exists($offset, $this->getRows());
+	}
+
+	public function offsetGet($offset) {
+		return $this->getRows()[$offset];
+	}
+
+	public function getRows() {
+		if ($this->rows === null) {
+			$this->rows = [];
+			foreach ($this as $primaryKey => $row) {
+				$this->rows[$primaryKey] = $row;
+			}
+		}
+		return $this->rows;
+	}
+
+	public function offsetSet($offset, $value) {
+		$this->rows[$offset] = $value;
+	}
+
+	public function offsetUnset($offset) {
+		unset($this->rows[$offset]);
+	}
+
 	public function current() {
 		$factory = $this->getFactory();
-		return $factory->getRow($this, $this->query->current(), $this->isColumnUsageReportingEnabled);
+		return $factory->getRow($this, $this->getQuery()->current(), $this->isColumnUsageReportingEnabled);
 	}
 
 	public function getFactory() {
@@ -36,19 +62,31 @@ class Table implements \Iterator {
 
 	public function key() {
 		$this->reportColumnUsage($this->primaryKey);
-		return $this->query->current()[$this->primaryKey];
+		return $this->getQuery()->current()[$this->primaryKey];
 	}
 
 	public function next() {
-		$this->query->next();
+		$this->getQuery()->next();
 	}
 
 	public function rewind() {
-		$this->query->rewind();
+		$this->getQuery()->rewind();
 	}
 
 	public function valid() {
-		return $this->query->valid();
+		return $this->getQuery()->valid();
+	}
+
+	public function where(...$args) {
+		$this->getQuery()->where(...$args);
+		return $this;
+	}
+
+	public function getQuery() {
+		if ($this->query === null) {
+			$this->query = $this->db->getFactory()->getSelectQuery($this);
+		}
+		return $this->query;
 	}
 
 	public function reportColumnUsage($usedColumn) {
@@ -89,19 +127,15 @@ class Table implements \Iterator {
 		return $this->db->getConventionTableName($this->name);
 	}
 
+	public function getForeignKey($tableName) {
+		return $this->db->getConventionForeignKey($tableName);
+	}
+
 	public function getPrimaryKey() {
 		return $this->primaryKey;
 	}
 
-	public function getQuery() {
-		return $this->query;
-	}
-
 	public function getUsedColumns() {
 		return $this->usedColumns;
-	}
-
-	public function where(...$args) {
-		return $this->query->where(...$args);
 	}
 }

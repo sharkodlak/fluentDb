@@ -35,8 +35,8 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 	public function testAutoSelectColumns() {
 		$actors = $this->db->actor;
 		$expected = [
-			'SELECT * FROM actor',
-			'SELECT first_name, last_name FROM actor',
+			"SELECT *\nFROM actor",
+			"SELECT first_name, last_name\nFROM actor",
 		];
 		for ($i = 0; $i < 2; ++$i) {
 			foreach ($actors as $actor) {

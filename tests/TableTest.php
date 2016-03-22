@@ -59,7 +59,7 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$table = new Table($db, 'language');
 		$table->reportColumnUsage('language_id');
 		$table->reportColumnUsage('name');
-		$table->__destruct();
+		unset($table);
 	}
 
 	public function testArrayAccess() { // Select only row matching given id
@@ -113,6 +113,17 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
 			->getMock();
+		$factory = $this->getMockBuilder(Factory\Factory::class)
+			->getMock();
+		$query = $this->getMockBuilder(Query\Select::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory->expects($this->once())
+			->method('getSelectQuery')
+			->will($this->returnValue($query));
+		$db->expects($this->once())
+			->method('getFactory')
+			->will($this->returnValue($factory));
 		$table = new Table($db, 'language');
 		$query = $table->getQuery();
 		$this->assertInstanceOf(Query\Query::class, $query);
@@ -136,42 +147,46 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testIterator() {
-		$pdoStatement = $this->getMockBuilder('PDOStatement')
-			->disableOriginalConstructor()
-			->getMock();
-		$pdoStatement->expects($this->once())
-			->method('execute')
-			->will($this->returnValue(true));
-		$languageFetches = array_pad(self::$language, count(self::$language) + 1, false);
-		$pdoStatement->expects($this->exactly(count($languageFetches)))
-			->method('fetch')
-			->will(call_user_func_array(array($this, 'onConsecutiveCalls'), $languageFetches));
 		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
 			->getMock();
-		$factory = $this->getMockBuilder(Factory\Factory::class)
-			->getMock();
-		$row = $this->getMockBuilder(Row::class)
-			->disableOriginalConstructor()
-			->getMock();
-		$row->expects($this->exactly(count(self::$language)))
-			->method('toArray')
-			->will(call_user_func_array(array($this, 'onConsecutiveCalls'), self::$language));
-		$factory->expects($this->exactly(count(self::$language)))
-			->method('getRow')
-			->will($this->returnValue($row));
-		$db->expects($this->exactly(count(self::$language)))
+			$factory = $this->getMockBuilder(Factory\Factory::class)
+				->getMock();
+				$query = $this->getMockBuilder(Query\Select::class)
+					->disableOriginalConstructor()
+					->getMock();
+				$query->expects($this->exactly(1 + count(self::$language)))
+					->method('valid')
+					->will(call_user_func_array(array($this, 'onConsecutiveCalls'), self::$language));
+				$firstRun = true;
+				$query->expects($this->exactly(2 * count(self::$language)))
+					->method('current')
+					->will($this->returnCallback(function() use (&$firstRun) {
+						$rowData = current(self::$language);
+						if (!$firstRun) {
+							next(self::$language);
+						}
+						$firstRun = !$firstRun;
+						return $rowData;
+					}));
+			$factory->expects($this->once())
+				->method('getSelectQuery')
+				->will($this->returnValue($query));
+				$row = $this->getMockBuilder(Row::class)
+					->disableOriginalConstructor()
+					->getMock();
+				$row->expects($this->exactly(count(self::$language)))
+					->method('toArray')
+					->will(call_user_func_array(array($this, 'onConsecutiveCalls'), self::$language));
+			$factory->expects($this->exactly(count(self::$language)))
+				->method('getRow')
+				->will($this->returnValue($row));
+		$db->expects($this->exactly(1 + count(self::$language)))
 			->method('getFactory')
 			->will($this->returnValue($factory));
-		$db->expects($this->exactly(2))
-			->method('getConventionTableName')
-			->will($this->returnArgument(0));
 		$db->expects($this->once())
 			->method('getConventionPrimaryKey')
 			->will($this->returnValue('language_id'));
-		$db->expects($this->once())
-			->method('query')
-			->will($this->returnValue($pdoStatement));
 		$table = new Table($db, 'language');
 		foreach ($table as $id => $row) {
 			$expected = self::$language[$id];
@@ -185,31 +200,18 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 			['language_id', 'name'],
 		];
 		$iterations = count($expected);
-		$pdoStatement = $this->getMockBuilder('PDOStatement')
-			->disableOriginalConstructor()
-			->getMock();
-		$pdoStatement->expects($this->exactly($iterations))
-			->method('execute')
-			->will($this->returnValue(true));
-		$languageFetches = array_pad(self::$language, count(self::$language) + 1, false);
-		$languageFetchesCallback = function() use (&$languageFetches) {
-			if (key($languageFetches) === null) {
-				$current = reset($languageFetches);
-			} else {
-				$current = current($languageFetches);
-			}
-			next($languageFetches);
-			return $current;
-		};
-		$pdoStatement->expects($this->exactly($iterations * count($languageFetches)))
-			->method('fetch')
-			->will($this->returnCallback($languageFetchesCallback));
 		$db = $this->getMockBuilder(Db::class)
 			->disableOriginalConstructor()
 			->getMock();
 		$factory = $this->getMockBuilder(Factory\Factory::class)
 			->getMock();
-		$db->expects($this->exactly($iterations * count(self::$language)))
+		$query = $this->getMockBuilder(Query\Select::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory->expects($this->exactly($iterations))
+			->method('getSelectQuery')
+			->will($this->returnValue($query));
+		$db->expects($this->atLeastOnce())
 			->method('getFactory')
 			->will($this->returnValue($factory));
 		$db->expects($this->any())
@@ -221,9 +223,6 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 		$db->expects($this->exactly($iterations))
 			->method('getTableColumns')
 			->will($this->onConsecutiveCalls(null, $expected[1]));
-		$db->expects($this->exactly($iterations))
-			->method('query')
-			->will($this->returnValue($pdoStatement));
 		for ($i = 0; $i < $iterations; ++$i) {
 			$table = new Table($db, 'language');
 			$this->assertEquals($expected[$i], $table->getUsedColumns());
@@ -231,7 +230,6 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 				$row['name'];
 			}
 			$query = $table->getQuery();
-			$this->assertTrue($query->isExecuted());
 			$query->dropResult();
 		}
 	}

@@ -11,6 +11,10 @@ class Simple implements Factory {
 		return new \Sharkodlak\FluentDb\Query\Builder($partKeys);
 	}
 
+	public function getSelectQuery(\Sharkodlak\FluentDb\Table $table) {
+		return new \Sharkodlak\FluentDb\Query\Select($table);
+	}
+
 	public function getTable(\Sharkodlak\FluentDb\Db $db, $name) {
 		return new \Sharkodlak\FluentDb\Table($db, $name);
 	}

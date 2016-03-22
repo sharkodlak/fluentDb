@@ -10,7 +10,7 @@ class Builder implements \ArrayAccess {
 	}
 
 	public function offsetExists($offset) {
-		return array_key_exists($part, $this->parts);
+		return array_key_exists($offset, $this->parts);
 	}
 
 	public function offsetGet($offset) {
@@ -42,7 +42,6 @@ class Builder implements \ArrayAccess {
 	}
 
 	public function __toString() {
-		var_dump($this->parts);
 		$parts = [];
 		foreach ($this->parts as $part => $value) {
 			if (isset($value)) {
