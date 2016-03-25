@@ -218,9 +218,6 @@ class TableTest extends \PHPUnit_Framework_TestCase {
 			->method('getConventionTableName')
 			->will($this->returnArgument(0));
 		$db->expects($this->exactly($iterations))
-			->method('getConventionPrimaryKey')
-			->will($this->returnValue('language_id'));
-		$db->expects($this->exactly($iterations))
 			->method('getTableColumns')
 			->will($this->onConsecutiveCalls(null, $expected[1]));
 		for ($i = 0; $i < $iterations; ++$i) {

@@ -18,8 +18,8 @@ class DefaultConvention implements Convention {
 		return sprintf($this->primary, $tableName);
 	}
 
-	public function getForeignKey($tableName) {
-		return sprintf($this->foreign, $tableName);
+	public function getForeignKey($destinationTableName, $sourceTableName = null) {
+		return sprintf($this->foreign, $destinationTableName);
 	}
 
 	public function getTableName($tableName) {

@@ -45,4 +45,28 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 		$reference = $film->language;
 		$this->assertInstanceOf(Row::class, $reference->via());
 	}
+
+	public function testBackwards() {
+		$file = '/etc/fluentdb/.dbconnect';
+		$pdo = new \PDO('uri:file://' . $file);
+		$cache = new \Stash\Pool();
+		$convention = new Structure\DefaultConvention('%s_id');
+		$factory = new Factory\Simple();
+		$db = new Db($pdo, $cache, $convention, $factory);
+		$films = $db->film;
+		$films->rewind();
+		$film = $films->current();
+		$reference = $film->film_category;
+		$rows = $reference->backwards();
+		$expected = [
+			'film_id' => 133,
+			'category_id' => 12,
+		];
+		$this->assertEquals(1, count($rows));
+		foreach ($rows as $row) {
+			$this->assertInstanceOf(Row::class, $row);
+			$this->assertEquals($expected['film_id'], $row['film_id']);
+			$this->assertEquals($expected['category_id'], $row['category_id']);
+		}
+	}
 }

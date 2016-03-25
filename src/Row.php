@@ -74,4 +74,8 @@ class Row implements \ArrayAccess, \IteratorAggregate {
 	public function getQuery() {
 		return $this->table->getQuery();
 	}
+
+	public function getTableName() {
+		return $this->table->getName();
+	}
 }

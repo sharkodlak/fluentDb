@@ -3,10 +3,11 @@
 namespace Sharkodlak\FluentDb;
 
 class Table implements \ArrayAccess, \Iterator {
+	private $conventionPrimaryKey;
+	private $conventionTableName;
 	private $db;
 	private $isColumnUsageReportingEnabled;
 	private $name;
-	private $primaryKey;
 	private $query;
 	private $rows;
 	private $usedColumns;
@@ -14,7 +15,6 @@ class Table implements \ArrayAccess, \Iterator {
 	public function __construct(Db $db, $name) {
 		$this->db = $db;
 		$this->name = $name;
-		$this->primaryKey = $db->getConventionPrimaryKey($name);
 		$this->usedColumns = $db->getTableColumns($name) ?: [];
 		$this->isColumnUsageReportingEnabled = empty($this->usedColumns);
 	}
@@ -33,6 +33,16 @@ class Table implements \ArrayAccess, \Iterator {
 		return $this->getRows()[$offset];
 	}
 
+	public function offsetSet($offset, $value) {
+		$this->getRows();
+		$this->rows[$offset] = $value;
+	}
+
+	public function offsetUnset($offset) {
+		$this->getRows();
+		unset($this->rows[$offset]);
+	}
+
 	public function getRows() {
 		if ($this->rows === null) {
 			$this->rows = [];
@@ -41,14 +51,6 @@ class Table implements \ArrayAccess, \Iterator {
 			}
 		}
 		return $this->rows;
-	}
-
-	public function offsetSet($offset, $value) {
-		$this->rows[$offset] = $value;
-	}
-
-	public function offsetUnset($offset) {
-		unset($this->rows[$offset]);
 	}
 
 	public function current() {
@@ -61,8 +63,13 @@ class Table implements \ArrayAccess, \Iterator {
 	}
 
 	public function key() {
-		$this->reportColumnUsage($this->primaryKey);
-		return $this->getQuery()->current()[$this->primaryKey];
+		$primaryKey = $this->getPrimaryKey();
+		$query = $this->getQuery();
+		$row = $query->current();
+		if (array_key_exists($primaryKey, $row)) {
+			return $row[$primaryKey];
+		}
+		return $query->key();
 	}
 
 	public function next() {
@@ -124,15 +131,21 @@ class Table implements \ArrayAccess, \Iterator {
 	}
 
 	public function getConventionTableName() {
-		return $this->db->getConventionTableName($this->name);
+		if ($this->conventionTableName === null) {
+			$this->conventionTableName = $this->db->getConventionTableName($this->name);
+		}
+		return $this->conventionTableName;
 	}
 
 	public function getForeignKey($tableName) {
-		return $this->db->getConventionForeignKey($tableName);
+		return $this->db->getConventionForeignKey($tableName, $this->name);
 	}
 
 	public function getPrimaryKey() {
-		return $this->primaryKey;
+		if ($this->conventionPrimaryKey === null) {
+			$this->conventionPrimaryKey = $this->db->getConventionPrimaryKey($this->name);
+		}
+		return $this->conventionPrimaryKey;
 	}
 
 	public function getUsedColumns() {
