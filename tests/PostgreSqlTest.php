@@ -35,6 +35,11 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 			'name' => 'English             ',
 			'last_update' => '2006-02-15 10:02:19',
 		],
+		6 => [
+			'language_id' => 6,
+			'name' => 'German              ',
+			'last_update' => '2006-02-15 10:02:19',
+		],
 	];
 
 	public function setUp() {
@@ -106,17 +111,40 @@ class PostgreSqlTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testReferenceVia() {
-		$file = '/etc/fluentdb/.dbconnect';
-		$pdo = new \PDO('uri:file://' . $file);
-		$cache = new \Stash\Pool();
-		$convention = new Structure\DefaultConvention('%s_id');
-		$factory = new Factory\Simple();
-		$db = new Db($pdo, $cache, $convention, $factory);
-		foreach ($db->film as $filmId => $film) {
+		$films = $this->db->film->orderBy(':id');
+		$expectedLanguageIds = [-1 => 6, 1 => 1, 1, 1, 1, 1];
+		foreach ($films as $filmId => $film) {
 			if ($filmId > 5) {
 				break;
 			}
-			$this->assertEquals(self::$languages[1], $film->language->via()->toArray());
+			$expected = self::$languages[$expectedLanguageIds[$filmId]];
+			$this->assertEquals($expected, $film->language->via()->toArray());
+		}
+	}
+
+	public function testReferenceBackwards() {
+		$films = $this->db->film->where(':id = %d', -1);
+		$films->rewind();
+		$film = $films->current();
+		$reference = $film->film_category;
+		$rows = $reference->backwards();
+		$expecteds = [
+			[
+				'film_id' => -1,
+				'category_id' => -1,
+			],
+			[
+				'film_id' => -1,
+				'category_id' => 7,
+			],
+		];
+		$this->assertEquals(2, count($rows));
+		$i = 0;
+		foreach ($rows as $row) {
+			$expected = $expecteds[$i++];
+			$this->assertInstanceOf(Row::class, $row);
+			$this->assertEquals($expected['film_id'], $row['film_id']);
+			$this->assertEquals($expected['category_id'], $row['category_id']);
 		}
 	}
 

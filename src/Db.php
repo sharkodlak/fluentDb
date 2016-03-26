@@ -10,6 +10,7 @@ class Db {
 
 	public function __construct(\PDO $pdo, \Psr\Cache\CacheItemPoolInterface $cache, Structure\Convention $convention, Factory\Factory $factory) {
 		$this->pdo = $pdo;
+		$this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 		$this->cache = $cache;
 		$this->convention = $convention;
 		$this->factory = $factory;

@@ -3,6 +3,7 @@
 namespace Sharkodlak\FluentDb;
 
 class Table implements \ArrayAccess, \Iterator {
+	use Query\Methods;
 	private $conventionPrimaryKey;
 	private $conventionTableName;
 	private $db;
@@ -84,9 +85,8 @@ class Table implements \ArrayAccess, \Iterator {
 		return $this->getQuery()->valid();
 	}
 
-	public function where(...$args) {
-		$this->getQuery()->where(...$args);
-		return $this;
+	protected function getQueryBuilder() {
+		return $this->getQuery();
 	}
 
 	public function getQuery() {

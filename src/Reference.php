@@ -2,13 +2,37 @@
 
 namespace Sharkodlak\FluentDb;
 
-class Reference {
+class Reference implements \ArrayAccess {
 	private $row;
+	private $rowVia;
 	private $table;
 
 	public function __construct(Row $row, Table $table) {
 		$this->row = $row;
 		$this->table = $table;
+	}
+
+	public function offsetExists($offset) {
+		return array_key_exists($offset, $this->getRowVia());
+	}
+
+	public function offsetGet($offset) {
+		return $this->getRowVia()[$offset];
+	}
+
+	public function offsetSet($offset, $value) {
+		$this->getRowVia()[$offset] = $value;
+	}
+
+	public function offsetUnset($offset) {
+		unset($this->getRowVia()[$offset]);
+	}
+
+	private function getRowVia() {
+		if ($this->rowVia === null) {
+			$this->rowVia = $this->via();
+		}
+		return $this->rowVia;
 	}
 
 	public function backwards($tableColumnName = null, $rowColumnName = null) {

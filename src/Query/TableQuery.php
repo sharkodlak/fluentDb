@@ -3,12 +3,21 @@
 namespace Sharkodlak\FluentDb\Query;
 
 abstract class TableQuery implements Query {
+	use Methods;
 	protected $builder;
 	protected $result;
 	protected $table;
 
 	public function __construct(\Sharkodlak\FluentDb\Table $table) {
 		$this->table = $table;
+	}
+
+	protected function getQueryBuilder() {
+		return $this->getBuilder();
+	}
+
+	public function getBuilder() {
+		return $this->builder;
 	}
 
 	public function dropResult() {
@@ -37,7 +46,7 @@ abstract class TableQuery implements Query {
 	private function execute() {
 		$query = (string) $this;
 		$statement = $this->table->query($query);
-		if (!$statement->execute()) {
+		if ($statement === false || !$statement->execute()) {
 			throw new \Exception('Statement execution error.');
 		}
 		$this->result = $statement;
@@ -48,14 +57,5 @@ abstract class TableQuery implements Query {
 		$query = (string) $this->getBuilder();
 		$translations = $this->table->getPlaceholderTranslations();
 		return strtr($query, $translations);
-	}
-
-	public function getBuilder() {
-		return $this->builder;
-	}
-
-	public function where(...$where) {
-		$this->builder->where(...$where);
-		return $this;
 	}
 }
