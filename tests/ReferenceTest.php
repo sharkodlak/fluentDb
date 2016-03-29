@@ -21,6 +21,16 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 			'length' => 86,
 		],
 	];
+	static private $filmCategories = [
+		[
+			'film_id' => -1,
+			'category_id' => -1,
+		],
+		[
+			'film_id' => -1,
+			'category_id' => 7,
+		],
+	];
 	static private $languages = [
 		1 => [
 			'language_id' => 1,
@@ -35,7 +45,6 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 	];
 
 	public function testVia() {
-		/*
 		$row = $this->getMockBuilder(Row::class)
 			->disableOriginalConstructor()
 			->getMock();
@@ -48,50 +57,45 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 		$table = $this->getMockBuilder(Table::class)
 			->disableOriginalConstructor()
 			->getMock();
+		$table->expects($this->once())
+			->method('offsetGet')
+			->will($this->returnValue(new Row($table, self::$languages[6])));
 		$reference = new Reference($row, $table);
-		*/
-		$file = '/etc/fluentdb/.dbconnect';
-		$pdo = new \PDO('uri:file://' . $file);
-		$cache = new \Stash\Pool();
-		$convention = new Structure\DefaultConvention('%s_id');
-		$factory = new Factory\Simple();
-		$db = new Db($pdo, $cache, $convention, $factory);
-		$films = $db->film;
-		$films->rewind();
-		$film = $films->current();
-		$reference = $film->language;
-		$this->assertInstanceOf(Row::class, $reference->via());
+		$via = $reference->via();
+		$this->assertInstanceOf(Row::class, $via);
+		$this->assertEquals(self::$languages[6], $via->toArray());
 	}
 
 	public function testBackwards() {
-		$file = '/etc/fluentdb/.dbconnect';
-		$pdo = new \PDO('uri:file://' . $file);
-		$cache = new \Stash\Pool();
-		$convention = new Structure\DefaultConvention('%s_id');
-		$factory = new Factory\Simple();
-		$db = new Db($pdo, $cache, $convention, $factory);
-		$films = $db->film->where(':id = %d', -1);
-		$films->rewind();
-		$film = $films->current();
-		$reference = $film->film_category;
+		$row = $this->getMockBuilder(Row::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$row->expects($this->once())
+			->method('getPrimaryKey')
+			->will($this->returnValue('film_id'));
+		$row->expects($this->once())
+			->method('offsetGet')
+			->will($this->returnValue(-1));
+		$query = $this->getMockBuilder(Query\Select::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$row->expects($this->once())
+			->method('getQuery')
+			->will($this->returnValue($query));
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table->expects($this->once())
+			->method('getRows')
+			->will($this->returnValue([new Row($table, self::$filmCategories[0]), new Row($table, self::$filmCategories[1])]));
+		$reference = new Reference($row, $table);
 		$rows = $reference->backwards();
-		$expecteds = [
-			[
-				'film_id' => -1,
-				'category_id' => -1,
-			],
-			[
-				'film_id' => -1,
-				'category_id' => 7,
-			],
-		];
 		$this->assertEquals(2, count($rows));
 		$i = 0;
 		foreach ($rows as $row) {
-			$expected = $expecteds[$i++];
+			$expected = self::$filmCategories[$i++];
 			$this->assertInstanceOf(Row::class, $row);
-			$this->assertEquals($expected['film_id'], $row['film_id']);
-			$this->assertEquals($expected['category_id'], $row['category_id']);
+			$this->assertEquals($expected, $row->toArray());
 		}
 	}
 

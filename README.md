@@ -41,9 +41,9 @@ returns collection of corresponding rows.
 		$subDirectories = $directory->directory->backwards('parent_id');
 	}
 
-To work with Row as an array use \ArrayAccess, \IteratorAggregate or `toArray` method.
+Row acts as an array, it can be iterated and method `toArray` returns all columns and values.
 
-	$row['name']; // Array access to column name
+	$row['name']; // Array access to column named 'name'
 	foreach ($row as $columnName => $value) { // Iterate over all columns
 		$columnName . ': ' . $value;
 	}
