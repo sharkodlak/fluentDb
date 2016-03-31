@@ -44,6 +44,46 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 		],
 	];
 
+	public function testGetTableForeignColumnName() {
+		$expected = 'film_id';
+		$tableName = 'film';
+		$row = $this->getMockBuilder(Row::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$row->expects($this->once())
+			->method('getTableName')
+			->will($this->returnValue($tableName));
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table->expects($this->once())
+			->method('getForeignKey')
+			->with($this->equalTo($tableName))
+			->will($this->returnValue($expected));
+		$reference = new Reference($row, $table);
+		$this->assertEquals($expected, $reference->getTableForeignColumnName(null));
+		$expected = 'parent_id';
+		$this->assertEquals($expected, $reference->getTableForeignColumnName($expected));
+	}
+
+	public function testGetRowPrimaryColumnName() {
+		$expected = 'film_id';
+		$row = $this->getMockBuilder(Row::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$row->expects($this->exactly(2))
+			->method('getPrimaryKey')
+			->will($this->returnValue($expected));
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$reference = new Reference($row, $table);
+		$this->assertEquals($expected, $reference->getRowPrimaryColumnName(null));
+		$this->assertEquals($expected, $reference->getRowPrimaryColumnName(':id'));
+		$expected = 'renamed_id';
+		$this->assertEquals($expected, $reference->getRowPrimaryColumnName($expected));
+	}
+
 	public function testVia() {
 		$row = $this->getMockBuilder(Row::class)
 			->disableOriginalConstructor()
@@ -64,6 +104,46 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 		$via = $reference->via();
 		$this->assertInstanceOf(Row::class, $via);
 		$this->assertEquals(self::$languages[6], $via->toArray());
+	}
+
+	public function testGetRowForeignColumnName() {
+		$expected = 'film_id';
+		$tableName = 'film';
+		$row = $this->getMockBuilder(Row::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$row->expects($this->once())
+			->method('getForeignKey')
+			->with($this->equalTo($tableName))
+			->will($this->returnValue($expected));
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table->expects($this->once())
+			->method('getName')
+			->will($this->returnValue($tableName));
+		$reference = new Reference($row, $table);
+		$this->assertEquals($expected, $reference->getRowForeignColumnName(null));
+		$expected = 'parent_id';
+		$this->assertEquals($expected, $reference->getRowForeignColumnName($expected));
+	}
+
+	public function testGetTablePrimaryColumnName() {
+		$expected = 'film_id';
+		$row = $this->getMockBuilder(Row::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table = $this->getMockBuilder(Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$table->expects($this->exactly(2))
+			->method('getPrimaryKey')
+			->will($this->returnValue($expected));
+		$reference = new Reference($row, $table);
+		$this->assertEquals($expected, $reference->getTablePrimaryColumnName(null));
+		$this->assertEquals($expected, $reference->getTablePrimaryColumnName(':id'));
+		$expected = 'renamed_id';
+		$this->assertEquals($expected, $reference->getTablePrimaryColumnName($expected));
 	}
 
 	public function testBackwards() {
