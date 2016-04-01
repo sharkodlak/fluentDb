@@ -2,7 +2,7 @@
 
 namespace Sharkodlak\FluentDb\Query;
 
-trait Methods {
+trait MethodsTrait {
 	abstract protected function getQueryBuilder();
 
 	public function orderBy(...$args) {

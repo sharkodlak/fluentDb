@@ -49,8 +49,16 @@ Row acts as an array, it can be iterated and method `toArray` returns all column
 	}
 	$row->toArray(); // Get all columns as array
 
+It's also possible to get one row from table defined by it's id.
 
-To be implemented later...
+	$row = $db->film[$id]
+
+To filter fetching rows from DB, use method where.
+
+	$db->film->where('release_year BETWEEN %s AND %s', 2001, 2008);
+
+
+Features to be implemented later if it make sense
 --------------------------
 
 It's possible to get referencing column value without knowledge of column name, the table name is required instead. Due to lazy loading
@@ -60,10 +68,16 @@ This feature works only if DB has consistent Referential Integrity, because it m
 	// Typical use is $row['language_id']
 	$row->language[':id']
 
-It's also possible to get one row from table defined by it's id.
+Reference methods accepts array arguments to allow table referencing by compound key.
 
-	$row = $db->film[$id]
+	$row->target->via(['lang_id', 'second_id'], ['lang_id', 'second_id']);
+	$row->target->backwards(['lang_id', 'second_id'], ['lang_id', 'second_id']);
 
-Both methods accepts multiple arguments to allow table referencing by compound key.
+Reference methods also accept 3rd argument with comparison function. By default it's equality function, but more complex function
+can be used.
 
-	$row->target->source('lang_id', 'target_id')->backwards('lang', 'id');
+	$between = function($rowColumnValue, $tableColumnValue) {
+		...
+		return $inBetween;
+	}
+	$row->target->via(null, null, $between);

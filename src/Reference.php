@@ -35,6 +35,38 @@ class Reference implements \ArrayAccess {
 		return $this->rowVia;
 	}
 
+	public function via($rowColumnName = null, $tableColumnName = null) {
+		$rowColumnName = $this->getRowForeignColumnName($rowColumnName);
+		$tableColumnName = $this->getTablePrimaryColumnName($tableColumnName);
+		$rowQuery = clone $this->row->getQuery();
+		$rowQueryBuilder = $rowQuery->getBuilder();
+		$rowQueryBuilder['SELECT'] = $rowColumnName;
+		// SELECT * FROM table WHERE :id IN (SELECT :id FROM row_table)
+		$this->table->where('%s IN (%s)', $tableColumnName, $rowQuery);
+		$rowColumnValue = $this->row[$rowColumnName];
+		foreach ($this->table->getRows() as $row) {
+			if (isset($row[$tableColumnName]) && $row[$tableColumnName] == $rowColumnValue) {
+				return $row;
+			}
+		}
+		return null;
+	}
+
+	public function getRowForeignColumnName($name) {
+		if ($name === null) {
+			$tableName = $this->table->getName();
+			return $this->row->getForeignKey($tableName);
+		}
+		return $name;
+	}
+
+	public function getTablePrimaryColumnName($name) {
+		if ($name === null || $name === ':id') {
+			return $this->table->getPrimaryKey();
+		}
+		return $name;
+	}
+
 	public function backwards($tableColumnName = null, $rowColumnName = null) {
 		$tableColumnName = $this->getTableForeignColumnName($tableColumnName);
 		$rowColumnName = $this->getRowPrimaryColumnName($rowColumnName);
@@ -62,33 +94,6 @@ class Reference implements \ArrayAccess {
 	public function getRowPrimaryColumnName($name) {
 		if ($name === null || $name === ':id') {
 			return $this->row->getPrimaryKey();
-		}
-		return $name;
-	}
-
-	public function via($rowColumnName = null, $tableColumnName = null) {
-		$rowColumnName = $this->getRowForeignColumnName($rowColumnName);
-		$tableColumnName = $this->getTablePrimaryColumnName($tableColumnName);
-		$rowQuery = clone $this->row->getQuery();
-		$rowQueryBuilder = $rowQuery->getBuilder();
-		$rowQueryBuilder['SELECT'] = ':id';
-		// SELECT * FROM table WHERE :id IN (SELECT :id FROM row_table)
-		$this->table->where(':id IN (%s)', $rowQuery);
-		$rowColumnValue = $this->row[$rowColumnName];
-		return $this->table[$rowColumnValue];
-	}
-
-	public function getRowForeignColumnName($name) {
-		if ($name === null) {
-			$tableName = $this->table->getName();
-			return $this->row->getForeignKey($tableName);
-		}
-		return $name;
-	}
-
-	public function getTablePrimaryColumnName($name) {
-		if ($name === null || $name === ':id') {
-			return $this->table->getPrimaryKey();
 		}
 		return $name;
 	}

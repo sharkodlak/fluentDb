@@ -3,7 +3,7 @@
 namespace Sharkodlak\FluentDb;
 
 class Table implements \ArrayAccess, \Iterator {
-	use Query\Methods;
+	use Query\MethodsTrait;
 	private $conventionPrimaryKey;
 	private $conventionTableName;
 	private $db;
@@ -24,6 +24,7 @@ class Table implements \ArrayAccess, \Iterator {
 		if ($this->isColumnUsageReportingEnabled && !empty($this->usedColumns)) {
 			$this->db->saveTableColumns($this->name, $this->usedColumns);
 		}
+		unset($this->query, $this->rows);
 	}
 
 	public function offsetExists($offset) {

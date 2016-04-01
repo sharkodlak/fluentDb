@@ -3,7 +3,7 @@
 namespace Sharkodlak\FluentDb\Query;
 
 abstract class TableQuery implements Query {
-	use Methods;
+	use MethodsTrait;
 	protected $builder;
 	protected $result;
 	protected $table;
