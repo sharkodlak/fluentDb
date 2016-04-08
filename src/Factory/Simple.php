@@ -4,11 +4,7 @@ namespace Sharkodlak\FluentDb\Factory;
 
 class Simple implements Factory {
 	public function getQueryBuilder(...$parts) {
-		$partKeys = [];
-		foreach ($parts as $part) {
-			$partKeys[$part] = null;
-		}
-		return new \Sharkodlak\FluentDb\Query\Builder($partKeys);
+		return new \Sharkodlak\FluentDb\Query\Builder(...$parts);
 	}
 
 	public function getSelectQuery(\Sharkodlak\FluentDb\Table $table) {

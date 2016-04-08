@@ -3,6 +3,7 @@
 namespace Sharkodlak\FluentDb\Query;
 
 class Select extends TableQuery implements \Iterator {
+	private $builder;
 	private $command = 'SELECT';
 	private $currentOffset = 0;
 	private $currentRow;
@@ -10,9 +11,13 @@ class Select extends TableQuery implements \Iterator {
 	public function __construct(\Sharkodlak\FluentDb\Table $table) {
 		parent::__construct($table);
 		$this->builder = $table->getFactory()
-			->getQueryBuilder($this->command, 'FROM', 'WHERE', 'ORDER BY')
-			->from(':table');
+			->getQueryBuilder($this->command, 'FROM', 'WHERE', 'ORDER BY', 'OFFSET', 'LIMIT');
+		$this->builder->from(':table');
 		$this->setupColumns();
+	}
+
+	public function getBuilder() {
+		return $this->builder;
 	}
 
 	public function dropResult() {

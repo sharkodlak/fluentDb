@@ -4,7 +4,6 @@ namespace Sharkodlak\FluentDb\Query;
 
 abstract class TableQuery implements Query {
 	use MethodsTrait;
-	protected $builder;
 	protected $result;
 	protected $table;
 
@@ -16,9 +15,7 @@ abstract class TableQuery implements Query {
 		return $this->getBuilder();
 	}
 
-	public function getBuilder() {
-		return $this->builder;
-	}
+	abstract public function getBuilder();
 
 	public function dropResult() {
 		$this->result = null;

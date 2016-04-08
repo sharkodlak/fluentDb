@@ -3,10 +3,12 @@
 namespace Sharkodlak\FluentDb\Query;
 
 class Builder implements \ArrayAccess {
-	private $parts;
+	private $parts = [];
 
-	public function __construct(array $parts) {
-		$this->parts = $parts;
+	public function __construct(...$parts) {
+		foreach ($parts as $part) {
+			$this->parts[$part] = null;
+		}
 	}
 
 	public function offsetExists($offset) {
@@ -35,7 +37,9 @@ class Builder implements \ArrayAccess {
 		switch ($offset) {
 			case 'SELECT':
 			case 'ORDER BY':
-				$value = new Parts\PartsComma((array) $value);
+				if ($value !== null) {
+					$value = new Parts\PartsComma((array) $value);
+				}
 				break;
 		}
 		$this->parts[$offset] = $value;

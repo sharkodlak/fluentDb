@@ -33,4 +33,52 @@ class SelectTest extends \PHPUnit_Framework_TestCase {
 		$expected = 'SELECT * FROM test_table';
 		$this->assertEquals($expected, (string) $query);
 	}
+
+	public function testLimit() {
+		$limit = 123;
+		$table = $this->getMockBuilder(\Sharkodlak\FluentDb\Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory = $this->getMockBuilder(\Sharkodlak\FluentDb\Factory\Factory::class)
+			->getMock();
+		$queryBuilder = $this->getMockBuilder(\Sharkodlak\FluentDb\Query\Builder::class)
+			->disableOriginalConstructor()
+			->setMethods(['limit'])
+			->getMock();
+		$queryBuilder->expects($this->once())
+			->method('limit')
+			->with($this->equalTo($limit));
+		$factory->expects($this->once())
+			->method('getQueryBuilder')
+			->will($this->returnValue($queryBuilder));
+		$table->expects($this->once())
+			->method('getFactory')
+			->will($this->returnValue($factory));
+		$query = new Select($table);
+		$this->assertInstanceOf(Select::class, $query->limit($limit));
+	}
+
+	public function testOffset() {
+		$offset = 123;
+		$table = $this->getMockBuilder(\Sharkodlak\FluentDb\Table::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$factory = $this->getMockBuilder(\Sharkodlak\FluentDb\Factory\Factory::class)
+			->getMock();
+		$queryBuilder = $this->getMockBuilder(\Sharkodlak\FluentDb\Query\Builder::class)
+			->disableOriginalConstructor()
+			->setMethods(['offset'])
+			->getMock();
+		$queryBuilder->expects($this->once())
+			->method('offset')
+			->with($this->equalTo($offset));
+		$factory->expects($this->once())
+			->method('getQueryBuilder')
+			->will($this->returnValue($queryBuilder));
+		$table->expects($this->once())
+			->method('getFactory')
+			->will($this->returnValue($factory));
+		$query = new Select($table);
+		$this->assertInstanceOf(Select::class, $query->offset($offset));
+	}
 }
