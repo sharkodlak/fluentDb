@@ -59,7 +59,17 @@ To filter fetching rows from DB, use method where.
 
 
 Features to be implemented later if it make sense
---------------------------
+-------------------------------------------------
+
+Filter rows by data from another table
+
+	// Select all movies in German language
+	// SELECT film.* FROM film JOIN language USING (language_id) WHERE language.name = 'German'
+	$db->film->language->where('name = %s', 'German');
+	// Select actors having at least 3 films
+	// SELECT actor_id FROM film_actor GROUP BY actor_id HAVING COUNT(film_id) >= 30
+	$actorsHavingALotOfFilms = $db->film_actor->groupBy(̈́'actor_id')->having('COUNT(film_id) >= 30');
+	$db->actor->where(':id IN (%s)', actorsHavingALotOfFilms);
 
 It's possible to get referencing column value without knowledge of column name, the table name is required instead. Due to lazy loading
 it has no performance impact. Select from referenced table will performed only if another than primary key column will be used.
