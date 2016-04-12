@@ -19,5 +19,10 @@ abstract class Parts  {
 		return implode($this->getGlue(), $this->data);
 	}
 
+	public function merge($data) {
+		$merged = array_merge($this->data, $data);
+		return new static($merged);
+	}
+
 	abstract public function getGlue();
 }

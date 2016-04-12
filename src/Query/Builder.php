@@ -7,7 +7,52 @@ class Builder implements \ArrayAccess {
 
 	public function __construct(...$parts) {
 		foreach ($parts as $part) {
-			$this->parts[$part] = null;
+			$this->parts[$part] = $this->envelopeKnownPart($part);
+		}
+	}
+
+	public function from($table) {
+		return $this->offsetSet('FROM', $table);
+	}
+
+	public function offsetSet($offset, $value) {
+		$mergeWithPrevious = false;
+		$this->parts[$offset] = $this->envelopeKnownPart($offset, $value, $mergeWithPrevious);
+		return $this;
+	}
+
+	public function __call($name, $args) {
+		$upperCaseName = strtoupper($name);
+		$argString = sprintf(...$args);
+		$this->parts[$upperCaseName] = $this->envelopeKnownPart($upperCaseName, $argString);
+		return $this;
+	}
+
+	public function orderBy($column) {
+		$part = 'ORDER BY';
+		$this->parts[$part] = $this->envelopeKnownPart($part, $column);
+		return $this;
+	}
+
+	public function select($expression, $name = null) {
+		$part = 'SELECT';
+		if ($name !== null) {
+			$expression = sprintf('%s AS %s', $expression, $name);
+		}
+		$this->parts[$part] = $this->envelopeKnownPart($part, $expression);
+		return $this;
+	}
+
+	private function envelopeKnownPart($part, $value = null, $mergeWithPrevious = true) {
+		switch ($part) {
+			case 'SELECT':
+			case 'ORDER BY':
+				$value = (array) $value;
+				return $mergeWithPrevious && array_key_exists($part, $this->parts)
+					? $this->parts[$part]->merge($value)
+					: new Parts\PartsComma($value);
+			default:
+				return $value;
 		}
 	}
 
@@ -19,33 +64,6 @@ class Builder implements \ArrayAccess {
 		return $this->parts[$offset];
 	}
 
-	public function __call($name, $args) {
-		$upperCaseName = strtoupper($name);
-		$argString = sprintf(...$args);
-		return $this->offsetSet($upperCaseName, $argString);
-	}
-
-	public function from($table) {
-		return $this->offsetSet('FROM', $table);
-	}
-
-	public function orderBy($column) {
-		return $this->offsetSet('ORDER BY', $column);
-	}
-
-	public function offsetSet($offset, $value) {
-		switch ($offset) {
-			case 'SELECT':
-			case 'ORDER BY':
-				if ($value !== null) {
-					$value = new Parts\PartsComma((array) $value);
-				}
-				break;
-		}
-		$this->parts[$offset] = $value;
-		return $this;
-	}
-
 	public function offsetUnset($offset) {
 		$this->parts[$offset] = null;
 	}
@@ -54,7 +72,10 @@ class Builder implements \ArrayAccess {
 		$parts = [];
 		foreach ($this->parts as $part => $value) {
 			if (isset($value)) {
-				$parts[] = $part . ' ' . (string) $value;
+				$value = (string) $value;
+				if ($value !== '') {
+					$parts[] = $part . ' ' . $value;
+				}
 			}
 		}
 		return implode("\n", $parts);
