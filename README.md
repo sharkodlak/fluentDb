@@ -69,7 +69,7 @@ Filter rows by data from another table
 	// Select actors having at least 3 films
 	// SELECT actor_id FROM film_actor GROUP BY actor_id HAVING COUNT(film_id) >= 30
 	$actorsHavingALotOfFilms = $db->film_actor->groupBy(̈́'actor_id')->having('COUNT(film_id) >= 30');
-	$db->actor->where(':id IN (%s)', actorsHavingALotOfFilms);
+	$db->actor->where(':id IN (%s)', $actorsHavingALotOfFilms);
 
 It's possible to get referencing column value without knowledge of column name, the table name is required instead. Due to lazy loading
 it has no performance impact. Select from referenced table will performed only if another than primary key column will be used.
