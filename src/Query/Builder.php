@@ -11,27 +11,9 @@ class Builder implements \ArrayAccess {
 		}
 	}
 
-	public function from($table) {
-		return $this->offsetSet('FROM', $table);
-	}
-
-	public function offsetSet($offset, $value) {
-		$mergeWithPrevious = false;
-		$this->parts[$offset] = $this->envelopeKnownPart($offset, $value, $mergeWithPrevious);
-		return $this;
-	}
-
-	public function __call($name, $args) {
-		$upperCaseName = strtoupper($name);
-		$argString = sprintf(...$args);
-		$this->parts[$upperCaseName] = $this->envelopeKnownPart($upperCaseName, $argString);
-		return $this;
-	}
-
 	public function orderBy($column) {
 		$part = 'ORDER BY';
-		$this->parts[$part] = $this->envelopeKnownPart($part, $column);
-		return $this;
+		return $this->setPart($part, $column);
 	}
 
 	public function select($expression, $name = null) {
@@ -39,7 +21,25 @@ class Builder implements \ArrayAccess {
 		if ($name !== null) {
 			$expression = sprintf('%s AS %s', $expression, $name);
 		}
-		$this->parts[$part] = $this->envelopeKnownPart($part, $expression);
+		return $this->setPart($part, $expression);
+	}
+
+	public function __call($name, $args) {
+		$part = strtoupper($name);
+		$value = sprintf(...$args);
+		return $this->setPart($part, $value);
+	}
+
+	public function offsetSet($part, $value) {
+		$mergeWithPrevious = false;
+		return $this->setPart($part, $value, $mergeWithPrevious);
+	}
+
+	private function setPart($part, $value, $mergeWithPrevious = true) {
+		if (!array_key_exists($part, $this->parts)) {
+			throw new \Sharkodlak\Exception\IllegalArgumentException('Unknown query part');
+		}
+		$this->parts[$part] = $this->envelopeKnownPart($part, $value, $mergeWithPrevious);
 		return $this;
 	}
 
@@ -51,21 +51,26 @@ class Builder implements \ArrayAccess {
 				return $mergeWithPrevious && array_key_exists($part, $this->parts)
 					? $this->parts[$part]->merge($value)
 					: new Parts\PartsComma($value);
+			case 'WHERE':
+				$value = (array) $value;
+				return $mergeWithPrevious && array_key_exists($part, $this->parts)
+					? $this->parts[$part]->merge($value)
+					: new Parts\PartsAnd($value);
 			default:
 				return $value;
 		}
 	}
 
-	public function offsetExists($offset) {
-		return array_key_exists($offset, $this->parts);
+	public function offsetExists($part) {
+		return array_key_exists($part, $this->parts);
 	}
 
-	public function offsetGet($offset) {
-		return $this->parts[$offset];
+	public function offsetGet($part) {
+		return $this->parts[$part];
 	}
 
-	public function offsetUnset($offset) {
-		$this->parts[$offset] = null;
+	public function offsetUnset($part) {
+		$this->parts[$part] = null;
 	}
 
 	public function __toString() {

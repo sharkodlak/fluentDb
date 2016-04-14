@@ -72,4 +72,29 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, (string) $builder);
 		return $builder;
 	}
+
+	public function testWhere() {
+		$this->assertInstanceOf(Builder::class, $this->builder->where('false'));
+		$expected = 'WHERE false';
+		$this->assertEquals($expected, (string) $this->builder);
+		return $this->builder;
+	}
+
+	/** @depends testWhere
+	 */
+	public function testWhereArrayAccess($builder) {
+		$builder['WHERE'] = 'true';
+		$expected = 'WHERE true';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testWhereArrayAccess
+	 */
+	public function testWhereAdd($builder) {
+		$builder->where('42 > 7');
+		$expected = 'WHERE true AND 42 > 7';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
 }
