@@ -97,4 +97,13 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, (string) $builder);
 		return $builder;
 	}
+
+	/** @depends testWhereAdd
+	 */
+	public function testWhereAddOr($builder) {
+		$builder->or(':id %% 2');
+		$expected = 'WHERE true AND 42 > 7 OR :id % 2';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
 }

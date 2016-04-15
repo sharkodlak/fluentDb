@@ -36,7 +36,10 @@ class Builder implements \ArrayAccess {
 	}
 
 	private function setPart($part, $value, $mergeWithPrevious = true) {
-		if (!array_key_exists($part, $this->parts)) {
+		$partToCheck = $part === 'OR'
+			? 'WHERE'
+			: $part;
+		if (!array_key_exists($partToCheck, $this->parts)) {
 			throw new \Sharkodlak\Exception\IllegalArgumentException('Unknown query part');
 		}
 		$this->parts[$part] = $this->envelopeKnownPart($part, $value, $mergeWithPrevious);
@@ -54,8 +57,11 @@ class Builder implements \ArrayAccess {
 			case 'WHERE':
 				$value = (array) $value;
 				return $mergeWithPrevious && array_key_exists($part, $this->parts)
-					? $this->parts[$part]->merge($value)
-					: new Parts\PartsAnd($value);
+					? $this->parts[$part]->last()->merge($value)
+					: new Parts\PartsOr([new Parts\PartsAnd($value)]);
+			case 'OR':
+				$value = (array) $value;
+				return $this->parts['WHERE']->merge([new Parts\PartsAnd($value)]);
 			default:
 				return $value;
 		}
