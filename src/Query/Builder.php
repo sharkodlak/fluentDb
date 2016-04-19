@@ -36,13 +36,13 @@ class Builder implements \ArrayAccess {
 	}
 
 	private function setPart($part, $value, $mergeWithPrevious = true) {
-		$partToCheck = $part === 'OR'
+		$realPart = $part === 'OR'
 			? 'WHERE'
 			: $part;
-		if (!array_key_exists($partToCheck, $this->parts)) {
+		if (!array_key_exists($realPart, $this->parts)) {
 			throw new \Sharkodlak\Exception\IllegalArgumentException('Unknown query part');
 		}
-		$this->parts[$part] = $this->envelopeKnownPart($part, $value, $mergeWithPrevious);
+		$this->parts[$realPart] = $this->envelopeKnownPart($part, $value, $mergeWithPrevious);
 		return $this;
 	}
 
@@ -56,9 +56,10 @@ class Builder implements \ArrayAccess {
 					: new Parts\PartsComma($value);
 			case 'WHERE':
 				$value = (array) $value;
-				return $mergeWithPrevious && array_key_exists($part, $this->parts)
-					? $this->parts[$part]->last()->merge($value)
-					: new Parts\PartsOr([new Parts\PartsAnd($value)]);
+				if ($mergeWithPrevious && array_key_exists($part, $this->parts)) {
+					return $this->parts[$part]->mergeLast($value);
+				}
+				return new Parts\PartsOr([new Parts\PartsAnd($value)]);
 			case 'OR':
 				$value = (array) $value;
 				return $this->parts['WHERE']->merge([new Parts\PartsAnd($value)]);
@@ -83,6 +84,7 @@ class Builder implements \ArrayAccess {
 		$parts = [];
 		foreach ($this->parts as $part => $value) {
 			if (isset($value)) {
+				var_dump($part, (string) $value, $value);
 				$value = (string) $value;
 				if ($value !== '') {
 					$parts[] = $part . ' ' . $value;
