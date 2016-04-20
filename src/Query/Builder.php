@@ -40,7 +40,8 @@ class Builder implements \ArrayAccess {
 			? 'WHERE'
 			: $part;
 		if (!array_key_exists($realPart, $this->parts)) {
-			throw new \Sharkodlak\Exception\IllegalArgumentException('Unknown query part');
+			$msg = "Unknown query part '$realPart'";
+			throw new \Sharkodlak\Exception\IllegalArgumentException($msg);
 		}
 		$this->parts[$realPart] = $this->envelopeKnownPart($part, $value, $mergeWithPrevious);
 		return $this;
@@ -84,7 +85,6 @@ class Builder implements \ArrayAccess {
 		$parts = [];
 		foreach ($this->parts as $part => $value) {
 			if (isset($value)) {
-				var_dump($part, (string) $value, $value);
 				$value = (string) $value;
 				if ($value !== '') {
 					$parts[] = $part . ' ' . $value;

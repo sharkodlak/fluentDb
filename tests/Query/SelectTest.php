@@ -17,9 +17,6 @@ class SelectTest extends \PHPUnit_Framework_TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		$queryBuilder->expects($this->once())
-			->method('from')
-			->will($this->returnSelf());
-		$queryBuilder->expects($this->once())
 			->method('__toString')
 			->will($this->returnValue('SELECT * FROM :table'));
 		$factory->expects($this->once())
@@ -42,7 +39,7 @@ class SelectTest extends \PHPUnit_Framework_TestCase {
 		$factory = $this->getMockBuilder(\Sharkodlak\FluentDb\Factory\Factory::class)
 			->getMock();
 		$queryBuilder = $this->getMockBuilder(\Sharkodlak\FluentDb\Query\Builder::class)
-			->disableOriginalConstructor()
+			->setConstructorArgs(['SELECT', 'FROM'])
 			->setMethods(['limit'])
 			->getMock();
 		$queryBuilder->expects($this->once())
@@ -66,7 +63,7 @@ class SelectTest extends \PHPUnit_Framework_TestCase {
 		$factory = $this->getMockBuilder(\Sharkodlak\FluentDb\Factory\Factory::class)
 			->getMock();
 		$queryBuilder = $this->getMockBuilder(\Sharkodlak\FluentDb\Query\Builder::class)
-			->disableOriginalConstructor()
+			->setConstructorArgs(['SELECT', 'FROM'])
 			->setMethods(['offset'])
 			->getMock();
 		$queryBuilder->expects($this->once())
