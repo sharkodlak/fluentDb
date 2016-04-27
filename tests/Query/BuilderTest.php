@@ -148,6 +148,48 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, (string) $builder);
 	}
 
+	public function testHaving() {
+		$this->assertInstanceOf(Builder::class, $this->builder->having('false'));
+		$expected = 'HAVING false';
+		$this->assertEquals($expected, (string) $this->builder);
+		return $this->builder;
+	}
+
+	/** @depends testHaving
+	 */
+	public function testHavingArrayAccess($builder) {
+		$builder['HAVING'] = 'true';
+		$expected = 'HAVING true';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testHavingArrayAccess
+	 */
+	public function testHavingAdd($builder) {
+		$builder->having('42 > 7');
+		$expected = 'HAVING true AND 42 > 7';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testHavingAdd
+	 */
+	public function testHavingAddOr($builder) {
+		$builder->havingOr(':id %% 2');
+		$expected = 'HAVING true AND 42 > 7 OR :id % 2';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testHavingAddOr
+	 */
+	public function testHavingReset($builder) {
+		$builder['HAVING'] = null;
+		$expected = '';
+		$this->assertEquals($expected, (string) $builder);
+	}
+
 	public function testUnion() {
 		$this->assertInstanceOf(Builder::class, $this->builder->select('*')->from('alpha')->union('SELECT * FROM beta'));
 		$expected = "SELECT *\nFROM alpha\nUNION SELECT * FROM beta";

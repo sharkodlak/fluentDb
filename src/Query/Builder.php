@@ -41,9 +41,17 @@ class Builder implements \ArrayAccess {
 	}
 
 	private function setPart($part, $value, $mergeWithPrevious = true) {
-		$realPart = $part === 'OR'
-			? 'WHERE'
-			: $part;
+		switch ($part) {
+			case 'HAVINGOR':
+				$realPart = 'HAVING';
+				break;
+			case 'OR':
+				$realPart = 'WHERE';
+				break;
+			default:
+				$realPart = $part;
+				break;
+		}
 		if (!array_key_exists($realPart, $this->parts)) {
 			$msg = "Unknown query part '$realPart'";
 			throw new \Sharkodlak\Exception\IllegalArgumentException($msg);
@@ -61,12 +69,16 @@ class Builder implements \ArrayAccess {
 				return $mergeWithPrevious && array_key_exists($part, $this->parts)
 					? $this->parts[$part]->merge($value)
 					: new Parts\PartsComma($value);
+			case 'HAVING':
 			case 'WHERE':
 				$value = (array) $value;
 				if ($mergeWithPrevious && array_key_exists($part, $this->parts)) {
 					return $this->parts[$part]->mergeLast($value);
 				}
 				return new Parts\PartsOr([new Parts\PartsAnd($value)]);
+			case 'HAVINGOR':
+				$value = (array) $value;
+				return $this->parts['HAVING']->merge([new Parts\PartsAnd($value)]);
 			case 'OR':
 				$value = (array) $value;
 				return $this->parts['WHERE']->merge([new Parts\PartsAnd($value)]);
