@@ -11,6 +11,11 @@ class Builder implements \ArrayAccess {
 		}
 	}
 
+	public function groupBy($column) {
+		$part = 'GROUP BY';
+		return $this->setPart($part, $column);
+	}
+
 	public function orderBy($column) {
 		$part = 'ORDER BY';
 		return $this->setPart($part, $column);
@@ -50,6 +55,7 @@ class Builder implements \ArrayAccess {
 	private function envelopeKnownPart($part, $value = null, $mergeWithPrevious = true) {
 		switch ($part) {
 			case 'SELECT':
+			case 'GROUP BY':
 			case 'ORDER BY':
 				$value = (array) $value;
 				return $mergeWithPrevious && array_key_exists($part, $this->parts)

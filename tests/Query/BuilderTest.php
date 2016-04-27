@@ -3,7 +3,7 @@
 namespace Sharkodlak\FluentDb\Query;
 
 class BuilderTest extends \PHPUnit_Framework_TestCase {
-	static private $parts = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'OFFSET', 'LIMIT'];
+	static private $parts = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'UNION', 'INTERSECT', 'EXCEPT', 'ORDER BY', 'OFFSET', 'LIMIT'];
 	static private $columns = [':id', 'name', 'anotherField'];
 	private $builder;
 
@@ -105,5 +105,53 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$expected = 'WHERE true AND 42 > 7 OR :id % 2';
 		$this->assertEquals($expected, (string) $builder);
 		return $builder;
+	}
+
+	/** @depends testWhereAddOr
+	 */
+	public function testWhereReset($builder) {
+		$builder['WHERE'] = null;
+		$expected = '';
+		$this->assertEquals($expected, (string) $builder);
+	}
+
+	public function testGroupBy() {
+		$this->assertInstanceOf(Builder::class, $this->builder->groupBy(1));
+		$expected = 'GROUP BY 1';
+		$this->assertEquals($expected, (string) $this->builder);
+		return $this->builder;
+	}
+
+	/** @depends testGroupBy
+	 */
+	public function testGroupByArrayAccess($builder) {
+		$builder['GROUP BY'] = 'language_id';
+		$expected = 'GROUP BY language_id';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testGroupByArrayAccess
+	 */
+	public function testGroupByAdd($builder) {
+		$builder->groupBy('year');
+		$expected = 'GROUP BY language_id, year';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testWhereAddOr
+	 */
+	public function testGroupByReset($builder) {
+		$builder['GROUP BY'] = null;
+		$expected = '';
+		$this->assertEquals($expected, (string) $builder);
+	}
+
+	public function testUnion() {
+		$this->assertInstanceOf(Builder::class, $this->builder->select('*')->from('alpha')->union('SELECT * FROM beta'));
+		$expected = "SELECT *\nFROM alpha\nUNION SELECT * FROM beta";
+		$this->assertEquals($expected, (string) $this->builder);
+		return $this->builder;
 	}
 }
