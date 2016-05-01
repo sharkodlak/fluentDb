@@ -263,4 +263,45 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->expectException(\Sharkodlak\Exception\IllegalArgumentException::class);
 		$builder->limit(-7);
 	}
+
+	public function testOffset() {
+		$this->assertInstanceOf(Builder::class, $this->builder->offset(123));
+		$expected = 'OFFSET 123';
+		$this->assertEquals($expected, (string) $this->builder);
+		return $this->builder;
+	}
+
+	/** @depends testOffset
+	 */
+	public function testOffsetArrayAccess($builder) {
+		$builder['OFFSET'] = 456;
+		$expected = 'OFFSET 456';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testOffsetArrayAccess
+	 */
+	public function testOffsetOverride($builder) {
+		$builder->offset(235);
+		$expected = 'OFFSET 235';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testOffsetOverride
+	 */
+	public function testOffsetReset($builder) {
+		$builder['OFFSET'] = null;
+		$expected = '';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testOffsetReset
+	 */
+	public function testOffsetWrongNumber($builder) {
+		$this->expectException(\Sharkodlak\Exception\IllegalArgumentException::class);
+		$builder->offset(-7);
+	}
 }
