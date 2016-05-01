@@ -57,6 +57,18 @@ To filter fetching rows from DB, use method where.
 
 	$db->film->where('release_year BETWEEN %s AND %s', 2001, 2008);
 
+Combine tables.
+
+	// Merge names
+	$fields = [':table' => 'table', ':id' => 'id', 'first_name', 'last_name'];
+	$db->customer($fields)->union($db->staff($fields));
+
+	// Use only names used in both tables (conjunction)
+	$fields = ['first_name', 'last_name'];
+	$db->customer($fields)->intersect($db->staff($fields));
+
+	// Use only names that aren't in both tables (disjunction)
+	$db->customer($fields)->except($db->staff($fields));
 
 Features to be implemented later if it make sense
 -------------------------------------------------

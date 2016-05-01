@@ -7,7 +7,11 @@ class Builder implements \ArrayAccess {
 
 	public function __construct(...$parts) {
 		foreach ($parts as $part) {
-			$this->parts[$part] = $this->envelopeKnownPart($part);
+			$realPart = $part;
+			if (in_array($part, ['UNION', 'INTERSECT', 'EXCEPT'])) {
+				$realPart = 'COMBINE';
+			}
+			$this->parts[$realPart] = $this->envelopeKnownPart($part);
 		}
 	}
 
@@ -48,6 +52,11 @@ class Builder implements \ArrayAccess {
 			case 'OR':
 				$realPart = 'WHERE';
 				break;
+			case 'EXCEPT':
+			case 'INTERSECT':
+			case 'UNION':
+				$realPart = 'COMBINE';
+				break;
 			default:
 				$realPart = $part;
 				break;
@@ -82,6 +91,14 @@ class Builder implements \ArrayAccess {
 			case 'OR':
 				$value = (array) $value;
 				return $this->parts['WHERE']->merge([new Parts\PartsAnd($value)]);
+			case 'EXCEPT':
+			case 'INTERSECT':
+			case 'UNION':
+				$realPart = 'COMBINE';
+				$className = __NAMESPACE__ . '\\Parts\\' . ucfirst(strtolower($part));
+				return $mergeWithPrevious && array_key_exists($realPart, $this->parts)
+					? $this->parts[$realPart]->merge([new $className($value)])
+					: new Parts\Combine($value);
 			default:
 				return $value;
 		}

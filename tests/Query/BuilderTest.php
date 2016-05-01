@@ -196,4 +196,22 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, (string) $this->builder);
 		return $this->builder;
 	}
+
+	/** @depends testUnion
+	 */
+	public function testUnionArrayAccess($builder) {
+		$builder['UNION'] = 'SELECT * FROM gamma';
+		$expected = "SELECT *\nFROM alpha\nUNION SELECT * FROM gamma";
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testUnionArrayAccess
+	 */
+	public function testUnionAdd($builder) {
+		$builder->union('SELECT * FROM delta');
+		$expected = "SELECT *\nFROM alpha\nUNION SELECT * FROM gamma\nUNION SELECT * FROM delta";
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
 }
