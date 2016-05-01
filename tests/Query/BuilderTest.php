@@ -140,7 +140,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		return $builder;
 	}
 
-	/** @depends testWhereAddOr
+	/** @depends testGroupByAdd
 	 */
 	public function testGroupByReset($builder) {
 		$builder['GROUP BY'] = null;
@@ -190,10 +190,36 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, (string) $builder);
 	}
 
-	public function testUnion() {
-		$this->assertInstanceOf(Builder::class, $this->builder->select('*')->from('alpha')->union('SELECT * FROM beta'));
-		$expected = "SELECT *\nFROM alpha\nUNION SELECT * FROM beta";
+	public function testOrderBy() {
+		$this->assertInstanceOf(Builder::class, $this->builder->orderBy(1));
+		$expected = 'ORDER BY 1';
 		$this->assertEquals($expected, (string) $this->builder);
 		return $this->builder;
+	}
+
+	/** @depends testOrderBy
+	 */
+	public function testOrderByArrayAccess($builder) {
+		$builder['ORDER BY'] = 'language_id';
+		$expected = 'ORDER BY language_id';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testOrderByArrayAccess
+	 */
+	public function testOrderByAdd($builder) {
+		$builder->orderBy('year');
+		$expected = 'ORDER BY language_id, year';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testOrderByAdd
+	 */
+	public function testOrderByReset($builder) {
+		$builder['ORDER BY'] = null;
+		$expected = '';
+		$this->assertEquals($expected, (string) $builder);
 	}
 }
