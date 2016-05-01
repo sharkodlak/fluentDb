@@ -82,6 +82,12 @@ class Builder implements \ArrayAccess {
 			case 'OR':
 				$value = (array) $value;
 				return $this->parts['WHERE']->merge([new Parts\PartsAnd($value)]);
+			case 'LIMIT':
+			case 'OFFSET':
+				if ($value !== null && (!is_numeric($value) || $value != intval($value) || $value < 0)) {
+					$msg = sprintf("Argument %s have to be integer, '%s'::%s given.", $part, $value, gettype($value));
+					throw new \Sharkodlak\Exception\IllegalArgumentException($msg);
+				}
 			default:
 				return $value;
 		}

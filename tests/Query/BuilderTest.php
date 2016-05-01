@@ -3,7 +3,7 @@
 namespace Sharkodlak\FluentDb\Query;
 
 class BuilderTest extends \PHPUnit_Framework_TestCase {
-	static private $parts = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'UNION', 'INTERSECT', 'EXCEPT', 'ORDER BY', 'OFFSET', 'LIMIT'];
+	static private $parts = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'UNION', 'INTERSECT', 'EXCEPT', 'ORDER BY', 'LIMIT', 'OFFSET'];
 	static private $columns = [':id', 'name', 'anotherField'];
 	private $builder;
 
@@ -221,5 +221,46 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		$builder['ORDER BY'] = null;
 		$expected = '';
 		$this->assertEquals($expected, (string) $builder);
+	}
+
+	public function testLimit() {
+		$this->assertInstanceOf(Builder::class, $this->builder->limit(123));
+		$expected = 'LIMIT 123';
+		$this->assertEquals($expected, (string) $this->builder);
+		return $this->builder;
+	}
+
+	/** @depends testLimit
+	 */
+	public function testLimitArrayAccess($builder) {
+		$builder['LIMIT'] = 456;
+		$expected = 'LIMIT 456';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testLimitArrayAccess
+	 */
+	public function testLimitOverride($builder) {
+		$builder->limit(235);
+		$expected = 'LIMIT 235';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testLimitOverride
+	 */
+	public function testLimitReset($builder) {
+		$builder['LIMIT'] = null;
+		$expected = '';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testLimitReset
+	 */
+	public function testLimitWrongNumber($builder) {
+		$this->expectException(\Sharkodlak\Exception\IllegalArgumentException::class);
+		$builder->limit(-7);
 	}
 }
