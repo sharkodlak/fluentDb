@@ -11,6 +11,23 @@ class Builder implements \ArrayAccess {
 		}
 	}
 
+	public function join($table, $name = null) {
+		$part = 'JOIN';
+		return $this->joinTable($part, $table, $name);
+	}
+
+	public function leftJoin($table, $name = null) {
+		$part = 'LEFT JOIN';
+		return $this->joinTable($part, $table, $name);
+	}
+
+	private function joinTable($part, $table, $name) {
+		if ($name !== null) {
+			$table = sprintf('%s AS %s', $table, $name);
+		}
+		return $this->setPart($part, $table);
+	}
+
 	public function groupBy($column) {
 		$part = 'GROUP BY';
 		return $this->setPart($part, $column);
@@ -45,6 +62,10 @@ class Builder implements \ArrayAccess {
 			case 'HAVINGOR':
 				$realPart = 'HAVING';
 				break;
+			case 'JOIN':
+			case 'LEFT JOIN':
+				$realPart = 'FROM';
+				break;
 			case 'OR':
 				$realPart = 'WHERE';
 				break;
@@ -69,19 +90,29 @@ class Builder implements \ArrayAccess {
 				return $mergeWithPrevious && array_key_exists($part, $this->parts)
 					? $this->parts[$part]->merge($value)
 					: new Parts\PartsComma($value);
-			case 'HAVING':
+			case 'FROM':
+				$value = (array) $value;
+				return new Parts\PartsSpace($value);
+			case 'JOIN':
+			case 'LEFT JOIN':
+				$joinedValue = $part . ' ' . $value;
+				$parts = [
+					new Parts\PartsSpace((array) $joinedValue)
+				];
+				return $this->parts['FROM']->merge($parts);
 			case 'WHERE':
+			case 'HAVING':
 				$value = (array) $value;
 				if ($mergeWithPrevious && array_key_exists($part, $this->parts)) {
 					return $this->parts[$part]->mergeLast($value);
 				}
 				return new Parts\PartsOr([new Parts\PartsAnd($value)]);
-			case 'HAVINGOR':
-				$value = (array) $value;
-				return $this->parts['HAVING']->merge([new Parts\PartsAnd($value)]);
 			case 'OR':
 				$value = (array) $value;
 				return $this->parts['WHERE']->merge([new Parts\PartsAnd($value)]);
+			case 'HAVINGOR':
+				$value = (array) $value;
+				return $this->parts['HAVING']->merge([new Parts\PartsAnd($value)]);
 			case 'LIMIT':
 			case 'OFFSET':
 				if ($value !== null && (!is_numeric($value) || $value != intval($value) || $value < 0)) {

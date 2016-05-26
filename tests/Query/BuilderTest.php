@@ -73,6 +73,24 @@ class BuilderTest extends \PHPUnit_Framework_TestCase {
 		return $builder;
 	}
 
+	/** @depends testFromOverride
+	 */
+	public function testJoin($builder) {
+		$builder->join('secondTable');
+		$expected = 'FROM overridenTable JOIN secondTable';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
+	/** @depends testFromOverride
+	 */
+	public function testLeftJoin($builder) {
+		$builder->leftJoin('thirdTable', 'renamedTable');
+		$expected = 'FROM overridenTable JOIN secondTable LEFT JOIN thirdTable AS renamedTable';
+		$this->assertEquals($expected, (string) $builder);
+		return $builder;
+	}
+
 	public function testWhere() {
 		$this->assertInstanceOf(Builder::class, $this->builder->where('false'));
 		$expected = 'WHERE false';
